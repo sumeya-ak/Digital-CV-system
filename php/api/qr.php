@@ -86,8 +86,9 @@ function generateQR() {
         jsonResponse(['error' => 'QR code already exists for this CV'], 400);
     }
 
-    $baseUrl = (isset($_SERVER['HTTPS']) ? 'https' : 'http') . '://' . $_SERVER['HTTP_HOST'];
-    $accessUrl = $baseUrl . '/public-cv.html?id=' . $cvId;
+    $protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'];
+    $accessUrl = "$protocol://$host/public-cv.html?id=" . $cvId;
     $uniqueToken = generateUniqueToken();
     $expiryDays = (int)getSystemSetting('qr_code_expiry_days', '365');
 
