@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Examiner Dashboard - Digital CV System</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon">CV</div>
+        <div>
+          <h2>Digital CV</h2>
+          <span class="subtitle">Examiner Portal</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Main</div>
+        <a href="examiner-dashboard.html" class="active">
+          <span class="nav-icon">&#127968;</span> Dashboard
+        </a>
+        <a href="#" onclick="switchTab('main','approved')">
+          <span class="nav-icon">&#128196;</span> Approved CVs
+        </a>
+        <a href="#" onclick="switchTab('main','evaluated')">
+          <span class="nav-icon">&#11088;</span> Evaluated
+        </a>
+        <div class="nav-section">Account</div>
+        <a href="#" onclick="logout()">
+          <span class="nav-icon">&#128682;</span> Logout
+        </a>
+      </nav>
+      <div class="sidebar-user">
+        <div class="avatar">E</div>
+        <div class="user-info">
+          <div class="name">Examiner</div>
+          <div class="role">Examiner</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="top-header">
+        <div class="d-flex align-center gap-1">
+          <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+          <h1 class="page-title">Examiner Dashboard</h1>
+        </div>
+        <div class="header-actions">
+          <div class="search-box">
+            <span class="search-icon">&#128269;</span>
+            <input type="text" placeholder="Search CVs..." id="searchInput" oninput="filterCVs()">
+          </div>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">&#128196;</div>
+            <div class="stat-info">
+              <h4 id="statTotal">0</h4>
+              <p>Approved CVs</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">&#11088;</div>
+            <div class="stat-info">
+              <h4 id="statEvaluated">0</h4>
+              <p>Evaluated</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">&#9203;</div>
+            <div class="stat-info">
+              <h4 id="statPendingEval">0</h4>
+              <p>Pending Evaluation</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple">&#127942;</div>
+            <div class="stat-info">
+              <h4 id="statAvgScore">-</h4>
+              <p>Average Score</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="card">
+          <div class="card-header">
+            <div data-tab-group="main" style="display:flex;gap:0;">
+              <button class="tab active" data-tab="approved" onclick="switchTab('main','approved')">Approved CVs</button>
+              <button class="tab" data-tab="evaluated" onclick="switchTab('main','evaluated')">Evaluated</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Approved CVs Tab -->
+            <div class="tab-content active" id="approved">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>CV Title</th>
+                      <th>Approved Date</th>
+                      <th>Evaluation</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="approvedTableBody">
+                    <tr><td colspan="5" class="text-center text-muted" style="padding:2rem;">No approved CVs to evaluate</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Evaluated Tab -->
+            <div class="tab-content" id="evaluated">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>CV Title</th>
+                      <th>Score</th>
+                      <th>Evaluated Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="evaluatedTableBody">
+                    <tr><td colspan="5" class="text-center text-muted" style="padding:2rem;">No evaluated CVs</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Evaluation Modal -->
+  <div class="modal-overlay" id="evalModal">
+    <div class="modal" style="max-width:600px;">
+      <div class="modal-header">
+        <h3>Evaluate CV</h3>
+        <button class="modal-close" onclick="closeModal('evalModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="evalCVInfo" style="margin-bottom:1rem;"></div>
+        <form id="evalForm">
+          <div class="form-group">
+            <label>Content Quality (1-10) <span class="required">*</span></label>
+            <select class="form-control" id="evalContent">
+              <option value="">Select score</option>
+              <option value="10">10 - Excellent</option>
+              <option value="9">9 - Very Good</option>
+              <option value="8">8 - Good</option>
+              <option value="7">7 - Above Average</option>
+              <option value="6">6 - Average</option>
+              <option value="5">5 - Below Average</option>
+              <option value="4">4 - Poor</option>
+              <option value="3">3 - Very Poor</option>
+              <option value="2">2 - Inadequate</option>
+              <option value="1">1 - Unacceptable</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Presentation (1-10) <span class="required">*</span></label>
+            <select class="form-control" id="evalPresentation">
+              <option value="">Select score</option>
+              <option value="10">10 - Excellent</option>
+              <option value="9">9 - Very Good</option>
+              <option value="8">8 - Good</option>
+              <option value="7">7 - Above Average</option>
+              <option value="6">6 - Average</option>
+              <option value="5">5 - Below Average</option>
+              <option value="4">4 - Poor</option>
+              <option value="3">3 - Very Poor</option>
+              <option value="2">2 - Inadequate</option>
+              <option value="1">1 - Unacceptable</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Completeness (1-10) <span class="required">*</span></label>
+            <select class="form-control" id="evalCompleteness">
+              <option value="">Select score</option>
+              <option value="10">10 - Excellent</option>
+              <option value="9">9 - Very Good</option>
+              <option value="8">8 - Good</option>
+              <option value="7">7 - Above Average</option>
+              <option value="6">6 - Average</option>
+              <option value="5">5 - Below Average</option>
+              <option value="4">4 - Poor</option>
+              <option value="3">3 - Very Poor</option>
+              <option value="2">2 - Inadequate</option>
+              <option value="1">1 - Unacceptable</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Overall Score</label>
+            <input type="text" class="form-control" id="evalOverall" readonly placeholder="Auto-calculated">
+          </div>
+          <div class="form-group">
+            <label>Comments</label>
+            <textarea class="form-control" id="evalComments" rows="3" placeholder="Additional comments about the CV..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('evalModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitEvaluation()">Submit Evaluation</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Evaluation Modal -->
+  <div class="modal-overlay" id="viewEvalModal">
+    <div class="modal" style="max-width:500px;">
+      <div class="modal-header">
+        <h3>Evaluation Details</h3>
+        <button class="modal-close" onclick="closeModal('viewEvalModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="viewEvalContent"></div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    const user = requireAuth(['examiner']);
+    let currentEvalCVId = null;
+
+    // Auto-calculate overall score
+    ['evalContent', 'evalPresentation', 'evalCompleteness'].forEach(id => {
+      document.getElementById(id).addEventListener('change', calcOverall);
+    });
+
+    function calcOverall() {
+      const c = parseInt(document.getElementById('evalContent').value) || 0;
+      const p = parseInt(document.getElementById('evalPresentation').value) || 0;
+      const comp = parseInt(document.getElementById('evalCompleteness').value) || 0;
+      if (c && p && comp) {
+        document.getElementById('evalOverall').value = ((c + p + comp) / 3).toFixed(1) + ' / 10';
+      }
+    }
+
+    if (user) {
+      document.addEventListener('DOMContentLoaded', loadExaminerDashboard);
+    }
+
+    async function loadExaminerDashboard() {
+      try {
+        const [cvsData, evalsData] = await Promise.all([
+          apiCall('/cvs.php?action=list'),
+          apiCall('/evaluations.php?action=list')
+        ]);
+        const cvs = (cvsData.cvs || []).filter(cv => cv.status === 'approved');
+        const evaluations = evalsData.evaluations || [];
+        const evaluatedIds = evaluations.map(e => e.cv_id);
+
+        const evaluated = cvs.filter(c => evaluatedIds.includes(c.cv_id));
+        const pendingEval = cvs.filter(c => !evaluatedIds.includes(c.cv_id));
+
+        document.getElementById('statTotal').textContent = cvs.length;
+        document.getElementById('statEvaluated').textContent = evaluated.length;
+        document.getElementById('statPendingEval').textContent = pendingEval.length;
+
+        if (evaluations.length > 0) {
+          const avg = evaluations.reduce((sum, e) => sum + e.overall_score, 0) / evaluations.length;
+          document.getElementById('statAvgScore').textContent = avg.toFixed(1);
+        }
+
+        // Approved table
+        const approvedBody = document.getElementById('approvedTableBody');
+        if (pendingEval.length > 0) {
+          approvedBody.innerHTML = pendingEval.map(cv => `
+            <tr>
+              <td><strong>${cv.student_name || cv.student_email}</strong></td>
+              <td>${cv.title}</td>
+              <td>${formatDate(cv.reviewed_at || cv.updated_at)}</td>
+              <td><span class="badge badge-pending">Not Evaluated</span></td>
+              <td><button class="btn btn-primary btn-sm" onclick="openEvaluation('${cv.cv_id}')">&#11088; Evaluate</button></td>
+            </tr>
+          `).join('');
+        } else {
+          approvedBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:2rem;">No CVs pending evaluation</td></tr>';
+        }
+
+        // Evaluated table
+        const evalBody = document.getElementById('evaluatedTableBody');
+        if (evaluated.length > 0) {
+          evalBody.innerHTML = evaluated.map(cv => {
+            const ev = evaluations.find(e => e.cv_id === cv.cv_id);
+            return `
+            <tr>
+              <td><strong>${cv.student_name || cv.student_email}</strong></td>
+              <td>${cv.title}</td>
+              <td><span class="badge badge-approved">${parseFloat(ev.overall_score).toFixed(1)}/10</span></td>
+              <td>${formatDate(ev.evaluated_at)}</td>
+              <td><button class="btn btn-outline btn-sm" onclick="viewEvaluation('${cv.cv_id}')">&#128065; View</button></td>
+            </tr>`;
+          }).join('');
+        } else {
+          evalBody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:2rem;">No evaluations yet</td></tr>';
+        }
+      } catch (err) {
+        console.error('Error loading dashboard:', err);
+        showToast('Failed to load data. Make sure PHP server is running.', 'error');
+      }
+    }
+
+    async function openEvaluation(cvId) {
+      currentEvalCVId = cvId;
+      try {
+        const data = await apiCall('/cvs.php?action=get&id=' + cvId);
+        const cv = data.cv;
+        if (!cv) {
+          showToast('CV not found', 'error');
+          return;
+        }
+
+        document.getElementById('evalCVInfo').innerHTML = `
+          <h4>${cv.title}</h4>
+          <p class="text-muted">By ${cv.student_name || cv.student_email}</p>
+        `;
+
+        document.getElementById('evalContent').value = '';
+        document.getElementById('evalPresentation').value = '';
+        document.getElementById('evalCompleteness').value = '';
+        document.getElementById('evalOverall').value = '';
+        document.getElementById('evalComments').value = '';
+
+        openModal('evalModal');
+      } catch (err) {
+        console.error('Error loading CV:', err);
+        showToast('Failed to load CV', 'error');
+      }
+    }
+
+    async function submitEvaluation() {
+      const content = parseInt(document.getElementById('evalContent').value);
+      const presentation = parseInt(document.getElementById('evalPresentation').value);
+      const completeness = parseInt(document.getElementById('evalCompleteness').value);
+      const comments = document.getElementById('evalComments').value.trim();
+
+      if (!content || !presentation || !completeness) {
+        alert('Please score all criteria.');
+        return;
+      }
+
+      const overall = (content + presentation + completeness) / 3;
+      try {
+        await apiCall('/evaluations.php?action=create', {
+          method: 'POST',
+          body: {
+            cv_id: currentEvalCVId,
+            content_quality_score: content,
+            presentation_score: presentation,
+            completeness_score: completeness,
+            overall_score: overall,
+            comments
+          }
+        });
+        showToast('Evaluation submitted!', 'success');
+        closeModal('evalModal');
+        loadExaminerDashboard();
+      } catch (err) {
+        console.error('Error submitting evaluation:', err);
+        showToast('Failed to submit evaluation: ' + err.message, 'error');
+      }
+    }
+
+    async function viewEvaluation(cvId) {
+      try {
+        const data = await apiCall('/evaluations.php?action=get&cv_id=' + cvId);
+        const ev = data.evaluation;
+        if (!ev) {
+          showToast('Evaluation not found', 'error');
+          return;
+        }
+
+        document.getElementById('viewEvalContent').innerHTML = `
+          <div class="cv-section">
+            <h3>Scores</h3>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;">
+              <div><strong>Content Quality:</strong> ${ev.content_quality_score}/10</div>
+              <div><strong>Presentation:</strong> ${ev.presentation_score}/10</div>
+              <div><strong>Completeness:</strong> ${ev.completeness_score}/10</div>
+              <div><strong>Overall:</strong> <span class="badge badge-approved">${ev.overall_score.toFixed(1)}/10</span></div>
+            </div>
+          </div>
+          ${ev.comments ? `<div class="cv-section"><h3>Comments</h3><p style="font-size:0.85rem;">${ev.comments}</p></div>` : ''}
+          <p class="text-muted" style="font-size:0.78rem;">Evaluated by ${ev.examiner_name} on ${formatDate(ev.evaluated_at)}</p>
+        `;
+        openModal('viewEvalModal');
+      } catch (err) {
+        console.error('Error loading evaluation:', err);
+        showToast('Failed to load evaluation', 'error');
+      }
+    }
+
+    function filterCVs() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      document.querySelectorAll('tbody tr').forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>

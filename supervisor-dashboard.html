@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supervisor Dashboard - Digital CV System</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon">CV</div>
+        <div>
+          <h2>Digital CV</h2>
+          <span class="subtitle">Supervisor Portal</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Main</div>
+        <a href="supervisor-dashboard.html" class="active">
+          <span class="nav-icon">&#127968;</span> Dashboard
+        </a>
+        <a href="#" onclick="switchTab('main','pending')">
+          <span class="nav-icon">&#9203;</span> Pending Review
+          <span class="badge" id="pendingBadge">0</span>
+        </a>
+        <a href="#" onclick="switchTab('main','approved')">
+          <span class="nav-icon">&#9989;</span> Approved CVs
+        </a>
+        <a href="#" onclick="switchTab('main','rejected')">
+          <span class="nav-icon">&#10060;</span> Rejected CVs
+        </a>
+        <div class="nav-section">Account</div>
+        <a href="#" onclick="logout()">
+          <span class="nav-icon">&#128682;</span> Logout
+        </a>
+      </nav>
+      <div class="sidebar-user">
+        <div class="avatar">S</div>
+        <div class="user-info">
+          <div class="name">Supervisor</div>
+          <div class="role">Project Supervisor</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="top-header">
+        <div class="d-flex align-center gap-1">
+          <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+          <h1 class="page-title">Supervisor Dashboard</h1>
+        </div>
+        <div class="header-actions">
+          <div class="search-box">
+            <span class="search-icon">&#128269;</span>
+            <input type="text" placeholder="Search students..." id="searchInput" oninput="filterCVs()">
+          </div>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">&#128196;</div>
+            <div class="stat-info">
+              <h4 id="statTotal">0</h4>
+              <p>Total Submissions</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">&#9203;</div>
+            <div class="stat-info">
+              <h4 id="statPending">0</h4>
+              <p>Pending Review</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">&#9989;</div>
+            <div class="stat-info">
+              <h4 id="statApproved">0</h4>
+              <p>Approved</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red">&#10060;</div>
+            <div class="stat-info">
+              <h4 id="statRejected">0</h4>
+              <p>Rejected</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="card">
+          <div class="card-header">
+            <div data-tab-group="main" style="display:flex;gap:0;">
+              <button class="tab active" data-tab="pending" onclick="switchTab('main','pending')">Pending Review</button>
+              <button class="tab" data-tab="approved" onclick="switchTab('main','approved')">Approved</button>
+              <button class="tab" data-tab="rejected" onclick="switchTab('main','rejected')">Rejected</button>
+              <button class="tab" data-tab="all" onclick="switchTab('main','all')">All CVs</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Pending Tab -->
+            <div class="tab-content active" id="pending">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>CV Title</th>
+                      <th>Submitted</th>
+                      <th>Summary</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pendingTableBody">
+                    <tr><td colspan="5" class="text-center text-muted" style="padding:2rem;">No pending CVs</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Approved Tab -->
+            <div class="tab-content" id="approved">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>CV Title</th>
+                      <th>Approved Date</th>
+                      <th>QR Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="approvedTableBody">
+                    <tr><td colspan="5" class="text-center text-muted" style="padding:2rem;">No approved CVs</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Rejected Tab -->
+            <div class="tab-content" id="rejected">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>CV Title</th>
+                      <th>Rejected Date</th>
+                      <th>Reason</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="rejectedTableBody">
+                    <tr><td colspan="5" class="text-center text-muted" style="padding:2rem;">No rejected CVs</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- All Tab -->
+            <div class="tab-content" id="all">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>CV Title</th>
+                      <th>Status</th>
+                      <th>Submitted</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="allTableBody">
+                    <tr><td colspan="5" class="text-center text-muted" style="padding:2rem;">No CVs found</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Review Modal -->
+  <div class="modal-overlay" id="reviewModal">
+    <div class="modal" style="max-width:700px;">
+      <div class="modal-header">
+        <h3>Review CV</h3>
+        <button class="modal-close" onclick="closeModal('reviewModal')">&times;</button>
+      </div>
+      <div class="modal-body" id="reviewContent">
+        <!-- Populated by JS -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-danger" id="rejectBtn" onclick="rejectCV()">&#10060; Reject</button>
+        <button class="btn btn-warning" onclick="requestModification()">&#9998; Request Modification</button>
+        <button class="btn btn-success" id="approveBtn" onclick="approveCV()">&#9989; Approve</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rejection Comment Modal -->
+  <div class="modal-overlay" id="rejectCommentModal">
+    <div class="modal" style="max-width:450px;">
+      <div class="modal-header">
+        <h3>Rejection Reason</h3>
+        <button class="modal-close" onclick="closeModal('rejectCommentModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Comments <span class="required">*</span></label>
+          <textarea class="form-control" id="rejectionComment" rows="4" placeholder="Explain why the CV is being rejected..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('rejectCommentModal')">Cancel</button>
+        <button class="btn btn-danger" onclick="confirmReject()">Confirm Rejection</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    const user = requireAuth(['supervisor']);
+    let currentReviewCVId = null;
+    let allCVs = [];
+
+    if (user) {
+      document.addEventListener('DOMContentLoaded', () => loadSupervisorDashboard());
+    }
+
+    async function loadSupervisorDashboard() {
+      try {
+        const data = await apiCall('/cvs.php?action=list');
+        allCVs = data.cvs || [];
+        const cvs = allCVs.filter(cv => cv.status !== 'draft');
+        const pending = cvs.filter(c => c.status === 'submitted' || c.status === 'under_review');
+        const approved = cvs.filter(c => c.status === 'approved');
+        const rejected = cvs.filter(c => c.status === 'rejected');
+
+        // Stats
+        document.getElementById('statTotal').textContent = cvs.length;
+        document.getElementById('statPending').textContent = pending.length;
+        document.getElementById('statApproved').textContent = approved.length;
+        document.getElementById('statRejected').textContent = rejected.length;
+        document.getElementById('pendingBadge').textContent = pending.length;
+
+        // Tables
+        populateTable('pendingTableBody', pending, 'pending');
+        populateTable('approvedTableBody', approved, 'approved');
+        populateTable('rejectedTableBody', rejected, 'rejected');
+        populateTable('allTableBody', cvs, 'all');
+      } catch (err) {
+        console.error('Error loading dashboard:', err);
+        showToast('Failed to load data. Make sure PHP server is running.', 'error');
+      }
+    }
+
+    function populateTable(tableId, cvs, type) {
+      const tbody = document.getElementById(tableId);
+      if (cvs.length === 0) {
+        const cols = type === 'rejected' ? 5 : type === 'approved' ? 5 : 5;
+        tbody.innerHTML = `<tr><td colspan="${cols}" class="text-center text-muted" style="padding:2rem;">No ${type === 'all' ? '' : type} CVs found</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = cvs.map(cv => {
+        let actions = `<button class="btn btn-outline btn-sm" onclick="reviewCV('${cv.cv_id}')">&#128065; Review</button>`;
+        if (type === 'pending') {
+          actions += ` <button class="btn btn-success btn-sm" onclick="quickApprove('${cv.cv_id}')">&#9989; Approve</button>`;
+        }
+        if (type === 'approved') {
+          actions = `<button class="btn btn-outline btn-sm" onclick="reviewCV('${cv.cv_id}')">&#128065; View</button>`;
+        }
+
+        let extraCols = '';
+        if (type === 'pending') extraCols = `<td>${cv.personal_summary ? cv.personal_summary.substring(0, 60) + '...' : 'N/A'}</td>`;
+        if (type === 'approved') extraCols = `<td>${formatDate(cv.reviewed_at || cv.updated_at)}</td><td><span class="badge badge-approved">Generated</span></td>`;
+        if (type === 'rejected') extraCols = `<td>${formatDate(cv.reviewed_at || cv.updated_at)}</td><td>${cv.review_comments || 'No comment'}</td>`;
+        if (type === 'all') extraCols = `<td><span class="badge badge-${cv.status}">${capitalizeFirst(cv.status)}</span></td>`;
+
+        return `<tr>
+          <td><strong>${cv.student_name || cv.student_email}</strong><br><span class="text-muted" style="font-size:0.75rem;">${cv.student_email}</span></td>
+          <td>${cv.title}</td>
+          ${type === 'all' ? `<td>${formatDate(cv.submitted_at || cv.created_at)}</td>` : ''}
+          ${type === 'pending' ? `<td>${formatDate(cv.submitted_at || cv.created_at)}</td>` : ''}
+          ${extraCols}
+          <td>${actions}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    async function reviewCV(cvId) {
+      currentReviewCVId = cvId;
+      try {
+        const data = await apiCall('/cvs.php?action=get&id=' + cvId);
+        const cv = data.cv;
+        if (!cv) {
+          showToast('CV not found', 'error');
+          return;
+        }
+
+        const content = document.getElementById('reviewContent');
+        content.innerHTML = `
+          <div style="margin-bottom:1rem;">
+            <div class="d-flex justify-between align-center">
+              <h2 style="font-size:1.2rem;font-weight:700;">${cv.title}</h2>
+              <span class="badge badge-${cv.status}">${capitalizeFirst(cv.status)}</span>
+            </div>
+            <p class="text-muted" style="font-size:0.82rem;">By ${cv.student_name || cv.student_email} | Submitted: ${formatDate(cv.submitted_at || cv.created_at)}</p>
+          </div>
+          <div class="cv-section">
+            <h3>&#128221; Professional Summary</h3>
+            <p style="font-size:0.85rem;">${cv.personal_summary || 'No summary'}</p>
+          </div>
+          <div class="cv-section">
+            <h3>&#127891; Education</h3>
+            ${(cv.education || []).map(ed => `
+              <div class="cv-item">
+                <h4>${ed.degree}</h4>
+                <div class="cv-item-meta">${ed.institution_name} | ${ed.start_date} - ${ed.end_date || 'Present'}</div>
+                <p>${ed.description || ''}</p>
+              </div>
+            `).join('') || '<p class="text-muted">No education listed</p>'}
+          </div>
+          <div class="cv-section">
+            <h3>&#128188; Experience</h3>
+            ${(cv.experience || []).map(ex => `
+              <div class="cv-item">
+                <h4>${ex.job_title}</h4>
+                <div class="cv-item-meta">${ex.company_name} | ${ex.start_date} - ${ex.end_date || 'Present'}</div>
+                <p>${ex.description || ''}</p>
+              </div>
+            `).join('') || '<p class="text-muted">No experience listed</p>'}
+          </div>
+          <div class="cv-section">
+            <h3>&#128736; Skills</h3>
+            <div class="cv-skills-list">
+              ${(cv.skill_names || []).map(s => `<span class="cv-skill-tag">${s}</span>`).join('') || '<span class="text-muted">No skills listed</span>'}
+          </div>
+          </div>
+          ${(cv.projects || []).length > 0 ? `
+          <div class="cv-section">
+            <h3>&#128188; Projects</h3>
+            ${(cv.projects || []).map(p => `
+              <div class="cv-item">
+                <h4>${p.project_name}</h4>
+                <div class="cv-item-meta">${p.start_date} - ${p.end_date || 'Present'}</div>
+                <p>${p.description || ''}</p>
+              </div>
+            `).join('')}
+          </div>` : ''}
+          ${(cv.certification_names || []).length > 0 ? `
+          <div class="cv-section">
+            <h3>&#127942; Certifications</h3>
+            <ul style="padding-left:1.2rem;font-size:0.85rem;">
+              ${cv.certification_names.map(c => `<li>${c}</li>`).join('')}
+            </ul>
+          </div>` : ''}
+        `;
+
+        document.getElementById('approveBtn').style.display = (cv.status === 'submitted' || cv.status === 'under_review') ? '' : 'none';
+        document.getElementById('rejectBtn').style.display = (cv.status === 'submitted' || cv.status === 'under_review') ? '' : 'none';
+
+        openModal('reviewModal');
+      } catch (err) {
+        console.error('Error loading CV:', err);
+        showToast('Failed to load CV', 'error');
+      }
+    }
+
+    async function approveCV() {
+      if (!currentReviewCVId) return;
+      try {
+        await apiCall('/cvs.php?action=approve&id=' + currentReviewCVId, { method: 'POST' });
+        showToast('CV approved successfully!', 'success');
+        closeModal('reviewModal');
+        loadSupervisorDashboard();
+      } catch (err) {
+        console.error('Error approving CV:', err);
+        showToast('Failed to approve CV: ' + err.message, 'error');
+      }
+    }
+
+    function quickApprove(cvId) {
+      currentReviewCVId = cvId;
+      if (confirm('Approve this CV?')) {
+        approveCV();
+      }
+    }
+
+    function rejectCV() {
+      openModal('rejectCommentModal');
+    }
+
+    async function confirmReject() {
+      const comment = document.getElementById('rejectionComment').value.trim();
+      if (!comment) {
+        alert('Please provide a reason for rejection.');
+        return;
+      }
+      try {
+        await apiCall('/cvs.php?action=reject&id=' + currentReviewCVId, { method: 'POST', body: { comment } });
+        showToast('CV rejected', 'success');
+        closeModal('rejectCommentModal');
+        closeModal('reviewModal');
+        document.getElementById('rejectionComment').value = '';
+        loadSupervisorDashboard();
+      } catch (err) {
+        console.error('Error rejecting CV:', err);
+        showToast('Failed to reject CV: ' + err.message, 'error');
+      }
+    }
+
+    function requestModification() {
+      const comment = prompt('Enter modification request details:');
+      if (comment) {
+        confirmRejectWithComment('Modification requested: ' + comment);
+      }
+    }
+
+    async function confirmRejectWithComment(comment) {
+      try {
+        await apiCall('/cvs.php?action=reject&id=' + currentReviewCVId, { method: 'POST', body: { comment } });
+        showToast('Modification request sent', 'success');
+        closeModal('reviewModal');
+        loadSupervisorDashboard();
+      } catch (err) {
+        console.error('Error:', err);
+        showToast('Failed: ' + err.message, 'error');
+      }
+    }
+
+    function filterCVs() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      document.querySelectorAll('#allTableBody tr').forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(query) ? '' : 'none';
+      });
+    }
+  </script>
+</body>
+</html>

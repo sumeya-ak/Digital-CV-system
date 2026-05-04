@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create CV - Digital CV System</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon">CV</div>
+        <div>
+          <h2>Digital CV</h2>
+          <span class="subtitle">Student Portal</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Main</div>
+        <a href="student-dashboard.html">
+          <span class="nav-icon">&#127968;</span> Dashboard
+        </a>
+        <a href="student-cv-create.html" class="active">
+          <span class="nav-icon">&#128221;</span> Create CV
+        </a>
+        <a href="#" onclick="window.location.href='student-dashboard.html'">
+          <span class="nav-icon">&#128196;</span> My CVs
+        </a>
+        <div class="nav-section">Account</div>
+        <a href="#" onclick="logout()">
+          <span class="nav-icon">&#128682;</span> Logout
+        </a>
+      </nav>
+      <div class="sidebar-user">
+        <div class="avatar">S</div>
+        <div class="user-info">
+          <div class="name">Student</div>
+          <div class="role">Graduate Student</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="top-header">
+        <div class="d-flex align-center gap-1">
+          <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+          <h1 class="page-title" id="pageTitle">Create New CV</h1>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-outline btn-sm" onclick="saveDraft()">&#128190; Save Draft</button>
+          <button class="btn btn-primary btn-sm" onclick="submitForApproval()">&#10148; Submit for Approval</button>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <!-- Progress Steps -->
+        <div class="progress-steps">
+          <div class="progress-step active" id="step1">
+            <div class="step-circle">1</div>
+            <span class="step-label">Personal Info</span>
+          </div>
+          <div class="step-connector" id="conn1"></div>
+          <div class="progress-step" id="step2">
+            <div class="step-circle">2</div>
+            <span class="step-label">Education</span>
+          </div>
+          <div class="step-connector" id="conn2"></div>
+          <div class="progress-step" id="step3">
+            <div class="step-circle">3</div>
+            <span class="step-label">Experience</span>
+          </div>
+          <div class="step-connector" id="conn3"></div>
+          <div class="progress-step" id="step4">
+            <div class="step-circle">4</div>
+            <span class="step-label">Skills & Docs</span>
+          </div>
+          <div class="step-connector" id="conn4"></div>
+          <div class="progress-step" id="step5">
+            <div class="step-circle">5</div>
+            <span class="step-label">Review</span>
+          </div>
+        </div>
+
+        <!-- Step 1: Personal Info -->
+        <div class="card fade-in" id="formStep1">
+          <div class="card-header">
+            <h3>Personal Information</h3>
+          </div>
+          <div class="card-body">
+            <div class="form-row">
+              <div class="form-group">
+                <label>CV Title <span class="required">*</span></label>
+                <input type="text" class="form-control" id="cvTitle" placeholder="e.g., Software Engineer CV">
+              </div>
+              <div class="form-group">
+                <label>Phone Number</label>
+                <input type="tel" class="form-control" id="cvPhone" placeholder="+251 9XX XXX XXXX">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Address</label>
+                <input type="text" class="form-control" id="cvAddress" placeholder="City, Country">
+              </div>
+              <div class="form-group">
+                <label>LinkedIn Profile</label>
+                <input type="url" class="form-control" id="cvLinkedIn" placeholder="https://linkedin.com/in/...">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Professional Summary <span class="required">*</span></label>
+              <textarea class="form-control" id="cvSummary" placeholder="Brief overview of your professional background and career objectives..." rows="4"></textarea>
+            </div>
+            <div class="d-flex justify-between mt-2">
+              <span></span>
+              <button class="btn btn-primary" onclick="nextStep(2)">Next: Education &#10140;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Education -->
+        <div class="card fade-in hidden" id="formStep2">
+          <div class="card-header">
+            <h3>Education</h3>
+            <button class="btn btn-outline btn-sm" onclick="addEducation()">&#43; Add Education</button>
+          </div>
+          <div class="card-body" id="educationList">
+            <div class="alert alert-info">Click "+ Add Education" to add your educational background.</div>
+          </div>
+          <div class="card-footer">
+            <div class="d-flex justify-between">
+              <button class="btn btn-outline" onclick="prevStep(1)">&#8592; Previous</button>
+              <button class="btn btn-primary" onclick="nextStep(3)">Next: Experience &#10140;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Experience -->
+        <div class="card fade-in hidden" id="formStep3">
+          <div class="card-header">
+            <h3>Work Experience</h3>
+            <button class="btn btn-outline btn-sm" onclick="addExperience()">&#43; Add Experience</button>
+          </div>
+          <div class="card-body" id="experienceList">
+            <div class="alert alert-info">Click "+ Add Experience" to add your work history.</div>
+          </div>
+          <div class="card-footer">
+            <div class="d-flex justify-between">
+              <button class="btn btn-outline" onclick="prevStep(2)">&#8592; Previous</button>
+              <button class="btn btn-primary" onclick="nextStep(4)">Next: Skills & Docs &#10140;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Skills & Documents -->
+        <div class="card fade-in hidden" id="formStep4">
+          <div class="card-header">
+            <h3>Skills & Supporting Documents</h3>
+          </div>
+          <div class="card-body">
+            <div class="form-group">
+              <label>Skills <span class="required">*</span></label>
+              <input type="text" class="form-control" id="cvSkills" placeholder="Enter skills separated by commas (e.g., Python, JavaScript, Project Management)">
+              <p class="form-hint">Press Enter or use commas to separate skills</p>
+            </div>
+            <div class="form-group">
+              <label>Languages</label>
+              <input type="text" class="form-control" id="cvLanguages" placeholder="e.g., English (Fluent), Amharic (Native)">
+            </div>
+            <div class="form-group">
+              <label>Certifications</label>
+              <textarea class="form-control" id="cvCertifications" placeholder="List your certifications, one per line" rows="3"></textarea>
+            </div>
+            <div class="form-group">
+              <label>Supporting Documents</label>
+              <div class="file-upload" onclick="document.getElementById('cvDocuments').click()">
+                <div class="upload-icon">&#128228;</div>
+                <p>Click to upload certificates, portfolio, etc.</p>
+                <p class="upload-hint">PDF, JPG, PNG (max 5MB each)</p>
+              </div>
+              <input type="file" id="cvDocuments" multiple accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleFileUpload(this)">
+              <div id="uploadedFiles" class="mt-1"></div>
+            </div>
+          </div>
+          <div class="card-footer">
+            <div class="d-flex justify-between">
+              <button class="btn btn-outline" onclick="prevStep(3)">&#8592; Previous</button>
+              <button class="btn btn-primary" onclick="nextStep(5)">Next: Review &#10140;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 5: Review -->
+        <div class="card fade-in hidden" id="formStep5">
+          <div class="card-header">
+            <h3>Review Your CV</h3>
+          </div>
+          <div class="card-body" id="cvReviewContent">
+            <!-- Populated by JS -->
+          </div>
+          <div class="card-footer">
+            <div class="d-flex justify-between">
+              <button class="btn btn-outline" onclick="prevStep(4)">&#8592; Previous</button>
+              <div class="d-flex gap-1">
+                <button class="btn btn-outline" onclick="saveDraft()">&#128190; Save Draft</button>
+                <button class="btn btn-primary" onclick="submitForApproval()">&#10148; Submit for Approval</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    const user = requireAuth(['student']);
+    let currentStep = 1;
+    let educationCount = 0;
+    let experienceCount = 0;
+    let uploadedFileNames = [];
+    let editingCVId = null;
+
+    if (user) {
+      document.addEventListener('DOMContentLoaded', () => {
+        const params = new URLSearchParams(window.location.search);
+        editingCVId = params.get('edit');
+        if (editingCVId) {
+          loadCVForEdit(editingCVId);
+        }
+      });
+    }
+
+    async function loadCVForEdit(cvId) {
+      try {
+        const data = await apiCall('/cvs.php?action=get&id=' + cvId);
+        const cv = data.cv;
+        if (!cv) {
+          showToast('CV not found', 'error');
+          window.location.href = 'student-dashboard.html';
+          return;
+        }
+
+        document.getElementById('pageTitle').textContent = 'Edit CV: ' + cv.title;
+        document.getElementById('cvTitle').value = cv.title || '';
+        document.getElementById('cvPhone').value = cv.phone || '';
+        document.getElementById('cvAddress').value = cv.address || '';
+        document.getElementById('cvLinkedIn').value = cv.linkedin || '';
+        document.getElementById('cvSummary').value = cv.personal_summary || cv.summary || '';
+        document.getElementById('cvSkills').value = (cv.skill_names || []).join(', ');
+        document.getElementById('cvLanguages').value = (cv.languages || []).join(', ');
+        document.getElementById('cvCertifications').value = (cv.certification_names || []).join('\n');
+
+        if (cv.education && cv.education.length > 0) {
+          cv.education.forEach(ed => addEducation(ed));
+        }
+        if (cv.experience && cv.experience.length > 0) {
+          cv.experience.forEach(ex => addExperience(ex));
+        }
+      } catch (err) {
+        console.error('Error loading CV:', err);
+        showToast('Failed to load CV', 'error');
+      }
+    }
+
+    function nextStep(step) {
+      if (step === 2 && !validateStep1()) return;
+      document.getElementById('formStep' + currentStep).classList.add('hidden');
+      document.getElementById('formStep' + step).classList.remove('hidden');
+      updateProgressSteps(step);
+      currentStep = step;
+      if (step === 5) populateReview();
+      window.scrollTo(0, 0);
+    }
+
+    function prevStep(step) {
+      document.getElementById('formStep' + currentStep).classList.add('hidden');
+      document.getElementById('formStep' + step).classList.remove('hidden');
+      updateProgressSteps(step);
+      currentStep = step;
+      window.scrollTo(0, 0);
+    }
+
+    function updateProgressSteps(step) {
+      for (let i = 1; i <= 5; i++) {
+        const el = document.getElementById('step' + i);
+        el.classList.remove('active', 'completed');
+        if (i < step) el.classList.add('completed');
+        else if (i === step) el.classList.add('active');
+      }
+      for (let i = 1; i <= 4; i++) {
+        const conn = document.getElementById('conn' + i);
+        conn.classList.toggle('completed', i < step);
+      }
+    }
+
+    function validateStep1() {
+      const title = document.getElementById('cvTitle').value.trim();
+      const summary = document.getElementById('cvSummary').value.trim();
+      if (!title) { alert('Please enter a CV title.'); return false; }
+      if (!summary) { alert('Please enter a professional summary.'); return false; }
+      return true;
+    }
+
+    function addEducation(data) {
+      educationCount++;
+      const id = educationCount;
+      const container = document.getElementById('educationList');
+      if (educationCount === 1) container.innerHTML = '';
+
+      const div = document.createElement('div');
+      div.className = 'card mb-2';
+      div.id = 'edu_' + id;
+      div.innerHTML = `
+        <div class="card-body">
+          <div class="d-flex justify-between align-center mb-1">
+            <strong>Education #${id}</strong>
+            <button class="btn btn-danger btn-sm" onclick="removeEducation(${id})">&#10005;</button>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Degree / Program</label>
+              <input type="text" class="form-control" id="edu_degree_${id}" value="${data?.degree || data?.degree_name || ''}" placeholder="BSc Computer Science">
+            </div>
+            <div class="form-group">
+              <label>Institution</label>
+              <input type="text" class="form-control" id="edu_institution_${id}" value="${data?.institution || data?.institution_name || ''}" placeholder="University name">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Start Date</label>
+              <input type="month" class="form-control" id="edu_start_${id}" value="${data?.start_date || data?.startDate || ''}">
+            </div>
+            <div class="form-group">
+              <label>End Date</label>
+              <input type="month" class="form-control" id="edu_end_${id}" value="${data?.end_date || data?.endDate || ''}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea class="form-control" id="edu_desc_${id}" rows="2" placeholder="Relevant coursework, honors, GPA...">${data?.description || ''}</textarea>
+          </div>
+        </div>
+      `;
+      container.appendChild(div);
+    }
+
+    function removeEducation(id) {
+      const el = document.getElementById('edu_' + id);
+      if (el) el.remove();
+    }
+
+    function addExperience(data) {
+      experienceCount++;
+      const id = experienceCount;
+      const container = document.getElementById('experienceList');
+      if (experienceCount === 1) container.innerHTML = '';
+
+      const div = document.createElement('div');
+      div.className = 'card mb-2';
+      div.id = 'exp_' + id;
+      div.innerHTML = `
+        <div class="card-body">
+          <div class="d-flex justify-between align-center mb-1">
+            <strong>Experience #${id}</strong>
+            <button class="btn btn-danger btn-sm" onclick="removeExperience(${id})">&#10005;</button>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Job Title</label>
+              <input type="text" class="form-control" id="exp_title_${id}" value="${data?.job_title || data?.title || ''}" placeholder="Software Developer">
+            </div>
+            <div class="form-group">
+              <label>Company</label>
+              <input type="text" class="form-control" id="exp_company_${id}" value="${data?.company_name || data?.company || ''}" placeholder="Company name">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Start Date</label>
+              <input type="month" class="form-control" id="exp_start_${id}" value="${data?.start_date || data?.startDate || ''}">
+            </div>
+            <div class="form-group">
+              <label>End Date</label>
+              <input type="month" class="form-control" id="exp_end_${id}" value="${data?.end_date || data?.endDate || ''}">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea class="form-control" id="exp_desc_${id}" rows="2" placeholder="Key responsibilities and achievements...">${data?.description || ''}</textarea>
+          </div>
+        </div>
+      `;
+      container.appendChild(div);
+    }
+
+    function removeExperience(id) {
+      const el = document.getElementById('exp_' + id);
+      if (el) el.remove();
+    }
+
+    function handleFileUpload(input) {
+      const files = input.files;
+      const container = document.getElementById('uploadedFiles');
+      for (let f of files) {
+        uploadedFileNames.push(f.name);
+        const div = document.createElement('div');
+        div.className = 'd-flex align-center gap-1 mb-1';
+        div.style.cssText = 'font-size:0.82rem;color:var(--gray-600);';
+        div.innerHTML = `&#128196; ${f.name} <button class="btn btn-danger btn-sm" style="padding:0.1rem 0.4rem;" onclick="this.parentElement.remove();uploadedFileNames=uploadedFileNames.filter(n=>n!=='${f.name}')">&#10005;</button>`;
+        container.appendChild(div);
+      }
+    }
+
+    function collectCVData() {
+      const education = [];
+      for (let i = 1; i <= educationCount; i++) {
+        const el = document.getElementById('edu_' + i);
+        if (el) {
+          education.push({
+            degree: document.getElementById('edu_degree_' + i)?.value || '',
+            institution_name: document.getElementById('edu_institution_' + i)?.value || '',
+            start_date: document.getElementById('edu_start_' + i)?.value || '',
+            end_date: document.getElementById('edu_end_' + i)?.value || '',
+            description: document.getElementById('edu_desc_' + i)?.value || ''
+          });
+        }
+      }
+
+      const experience = [];
+      for (let i = 1; i <= experienceCount; i++) {
+        const el = document.getElementById('exp_' + i);
+        if (el) {
+          experience.push({
+            job_title: document.getElementById('exp_title_' + i)?.value || '',
+            company_name: document.getElementById('exp_company_' + i)?.value || '',
+            start_date: document.getElementById('exp_start_' + i)?.value || '',
+            end_date: document.getElementById('exp_end_' + i)?.value || '',
+            description: document.getElementById('exp_desc_' + i)?.value || ''
+          });
+        }
+      }
+
+      return {
+        title: document.getElementById('cvTitle').value.trim(),
+        personal_summary: document.getElementById('cvSummary').value.trim(),
+        phone: document.getElementById('cvPhone').value.trim(),
+        address: document.getElementById('cvAddress').value.trim(),
+        linkedin: document.getElementById('cvLinkedIn').value.trim(),
+        education,
+        experience,
+        skills: document.getElementById('cvSkills').value.split(',').map(s => s.trim()).filter(Boolean),
+        languages: document.getElementById('cvLanguages').value.split(',').map(s => s.trim()).filter(Boolean),
+        certifications: document.getElementById('cvCertifications').value.split('\n').map(s => s.trim()).filter(Boolean)
+      };
+    }
+
+    async function saveDraft() {
+      if (!document.getElementById('cvTitle').value.trim()) {
+        alert('Please enter at least a CV title.');
+        return;
+      }
+      const cvData = collectCVData();
+      
+      try {
+        if (editingCVId) {
+          await apiCall('/cvs.php?action=update&id=' + editingCVId, { method: 'PUT', body: cvData });
+          showToast('CV updated successfully!', 'success');
+        } else {
+          const result = await apiCall('/cvs.php?action=create', { method: 'POST', body: cvData });
+          editingCVId = result.cv_id;
+          showToast('Draft saved successfully!', 'success');
+        }
+      } catch (err) {
+        console.error('Error saving CV:', err);
+        showToast('Failed to save CV: ' + err.message, 'error');
+      }
+    }
+
+    async function submitForApproval() {
+      if (!validateStep1()) return;
+      const cvData = collectCVData();
+      
+      try {
+        let cvId = editingCVId;
+        if (!cvId) {
+          const result = await apiCall('/cvs.php?action=create', { method: 'POST', body: cvData });
+          cvId = result.cv_id;
+        } else {
+          await apiCall('/cvs.php?action=update&id=' + cvId, { method: 'PUT', body: cvData });
+        }
+        
+        await apiCall('/cvs.php?action=submit&id=' + cvId, { method: 'POST' });
+        showToast('CV submitted for approval!', 'success');
+        window.location.href = 'student-dashboard.html';
+      } catch (err) {
+        console.error('Error submitting CV:', err);
+        showToast('Failed to submit CV: ' + err.message, 'error');
+      }
+    }
+
+    function populateReview() {
+      const data = collectCVData();
+      const review = document.getElementById('cvReviewContent');
+      review.innerHTML = `
+        <div class="cv-section">
+          <h3>&#128100; Personal Information</h3>
+          <p><strong>Name:</strong> ${user.first_name} ${user.last_name}</p>
+          <p><strong>Email:</strong> ${user.email}</p>
+          <p><strong>Phone:</strong> ${data.phone || 'N/A'}</p>
+          <p><strong>Address:</strong> ${data.address || 'N/A'}</p>
+          <p><strong>LinkedIn:</strong> ${data.linkedin || 'N/A'}</p>
+        </div>
+        <div class="cv-section">
+          <h3>&#128221; Professional Summary</h3>
+          <p>${data.personal_summary || 'No summary provided'}</p>
+        </div>
+        <div class="cv-section">
+          <h3>&#127891; Education</h3>
+          ${data.education.length > 0 ? data.education.map(ed => `
+            <div class="cv-item">
+              <h4>${ed.degree}</h4>
+              <div class="cv-item-meta">${ed.institution_name} | ${ed.start_date} - ${ed.end_date || 'Present'}</div>
+              <p>${ed.description || ''}</p>
+            </div>
+          `).join('') : '<p class="text-muted">No education added</p>'}
+        </div>
+        <div class="cv-section">
+          <h3>&#128188; Experience</h3>
+          ${data.experience.length > 0 ? data.experience.map(ex => `
+            <div class="cv-item">
+              <h4>${ex.job_title}</h4>
+              <div class="cv-item-meta">${ex.company_name} | ${ex.start_date} - ${ex.end_date || 'Present'}</div>
+              <p>${ex.description || ''}</p>
+            </div>
+          `).join('') : '<p class="text-muted">No experience added</p>'}
+        </div>
+        <div class="cv-section">
+          <h3>&#128736; Skills</h3>
+          <div class="cv-skills-list">
+            ${data.skills.length > 0 ? data.skills.map(s => `<span class="cv-skill-tag">${s}</span>`).join('') : '<span class="text-muted">No skills added</span>'}
+          </div>
+        </div>
+        ${data.languages.length > 0 ? `
+        <div class="cv-section">
+          <h3>&#127760; Languages</h3>
+          <div class="cv-skills-list">
+            ${data.languages.map(l => `<span class="cv-skill-tag">${l}</span>`).join('')}
+          </div>
+        </div>` : ''}
+        ${data.certifications.length > 0 ? `
+        <div class="cv-section">
+          <h3>&#127942; Certifications</h3>
+          <ul style="padding-left:1.2rem;font-size:0.85rem;">
+            ${data.certifications.map(c => `<li>${c}</li>`).join('')}
+          </ul>
+        </div>` : ''}
+      `;
+    }
+  </script>
+</body>
+</html>

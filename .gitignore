@@ -1,0 +1,51 @@
+# Database credentials and sensitive files
+php/includes/db.php
+test_db.php
+test_login.php
+fix_manager_password.php
+
+# Test files
+*.test.php
+test_*.php
+
+# Logs and temporary files
+*.log
+*.tmp
+temp/
+logs/
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Operating system files
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# PHP and composer
+vendor/
+composer.lock
+
+# Node.js (if used)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Backup files
+*.bak
+*.backup
+database_hosting_ready.sql
+
+# Upload directories (if used)
+uploads/
+files/

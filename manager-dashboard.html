@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Manager - Digital CV System</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon">CV</div>
+        <div>
+          <h2>Digital CV</h2>
+          <span class="subtitle">Manager Portal</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Main</div>
+        <a href="manager-dashboard.html" class="active">
+          <span class="nav-icon">&#127968;</span> Dashboard
+        </a>
+        <a href="#" onclick="switchTab('main','users')">
+          <span class="nav-icon">&#128101;</span> User Management
+        </a>
+        <a href="#" onclick="switchTab('main','invitations')">
+          <span class="nav-icon">&#128233;</span> Invitations
+        </a>
+        <a href="#" onclick="switchTab('main','cvs')">
+          <span class="nav-icon">&#128196;</span> CV Management
+        </a>
+        <a href="#" onclick="switchTab('main','qrcodes')">
+          <span class="nav-icon">&#128242;</span> QR Codes
+        </a>
+        <div class="nav-section">Monitoring</div>
+        <a href="#" onclick="switchTab('main','reports')">
+          <span class="nav-icon">&#128202;</span> Reports
+        </a>
+        <a href="#" onclick="switchTab('main','audit')">
+          <span class="nav-icon">&#128203;</span> Audit Logs
+        </a>
+        <div class="nav-section">System</div>
+        <a href="#" onclick="logout()">
+          <span class="nav-icon">&#128682;</span> Logout
+        </a>
+      </nav>
+      <div class="sidebar-user">
+        <div class="avatar">M</div>
+        <div class="user-info">
+          <div class="name">Manager</div>
+          <div class="role">System Manager</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="top-header">
+        <div class="d-flex align-center gap-1">
+          <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+          <h1 class="page-title">System Manager Dashboard</h1>
+        </div>
+        <div class="header-actions">
+          <div class="search-box">
+            <span class="search-icon">&#128269;</span>
+            <input type="text" placeholder="Search users, CVs..." id="globalSearch">
+          </div>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">&#128101;</div>
+            <div class="stat-info">
+              <h4 id="statUsers">0</h4>
+              <p>Total Users</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">&#128196;</div>
+            <div class="stat-info">
+              <h4 id="statCVs">0</h4>
+              <p>Total CVs</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">&#9989;</div>
+            <div class="stat-info">
+              <h4 id="statApproved">0</h4>
+              <p>Approved CVs</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple">&#128242;</div>
+            <div class="stat-info">
+              <h4 id="statQRCodes">0</h4>
+              <p>QR Codes Generated</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red">&#10060;</div>
+            <div class="stat-info">
+              <h4 id="statRejected">0</h4>
+              <p>Rejected CVs</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.5rem;">
+          <div class="card">
+            <div class="card-header">
+              <h3>CV Status Distribution</h3>
+            </div>
+            <div class="card-body">
+              <div id="statusChart" class="chart-placeholder">
+                Chart will render with backend data
+              </div>
+              <div class="d-flex gap-2 mt-2" style="justify-content:center;flex-wrap:wrap;">
+                <div style="font-size:0.78rem;"><span style="display:inline-block;width:12px;height:12px;background:var(--success);border-radius:2px;margin-right:4px;"></span> Approved: <strong id="chartApproved">0</strong></div>
+                <div style="font-size:0.78rem;"><span style="display:inline-block;width:12px;height:12px;background:var(--warning);border-radius:2px;margin-right:4px;"></span> Pending: <strong id="chartPending">0</strong></div>
+                <div style="font-size:0.78rem;"><span style="display:inline-block;width:12px;height:12px;background:var(--danger);border-radius:2px;margin-right:4px;"></span> Rejected: <strong id="chartRejected">0</strong></div>
+                <div style="font-size:0.78rem;"><span style="display:inline-block;width:12px;height:12px;background:var(--gray-400);border-radius:2px;margin-right:4px;"></span> Draft: <strong id="chartDraft">0</strong></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h3>Users by Role</h3>
+            </div>
+            <div class="card-body">
+              <div id="roleChart" class="chart-placeholder">
+                Chart will render with backend data
+              </div>
+              <div class="d-flex gap-2 mt-2" style="justify-content:center;flex-wrap:wrap;">
+                <div style="font-size:0.78rem;"><span style="display:inline-block;width:12px;height:12px;background:var(--primary);border-radius:2px;margin-right:4px;"></span> Students: <strong id="chartStudents">0</strong></div>
+                <div style="font-size:0.78rem;"><span style="display:inline-block;width:12px;height:12px;background:var(--success);border-radius:2px;margin-right:4px;"></span> Supervisors: <strong id="chartSupervisors">0</strong></div>
+                <div style="font-size:0.78rem;"><span style="display:inline-block;width:12px;height:12px;background:#7c3aed;border-radius:2px;margin-right:4px;"></span> Examiners: <strong id="chartExaminers">0</strong></div>
+                <div style="font-size:0.78rem;"><span style="display:inline-block;width:12px;height:12px;background:var(--accent);border-radius:2px;margin-right:4px;"></span> Recruiters: <strong id="chartRecruiters">0</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="card">
+          <div class="card-header">
+            <div data-tab-group="main" style="display:flex;gap:0;flex-wrap:wrap;">
+              <button class="tab active" data-tab="users" onclick="switchTab('main','users')">Users</button>
+              <button class="tab" data-tab="invitations" onclick="switchTab('main','invitations')">Invitations</button>
+              <button class="tab" data-tab="cvs" onclick="switchTab('main','cvs')">All CVs</button>
+              <button class="tab" data-tab="qrcodes" onclick="switchTab('main','qrcodes')">QR Codes</button>
+              <button class="tab" data-tab="reports" onclick="switchTab('main','reports')">Reports</button>
+              <button class="tab" data-tab="audit" onclick="switchTab('main','audit')">Audit Logs</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Users Tab -->
+            <div class="tab-content active" id="users">
+              <div class="d-flex justify-between align-center mb-2">
+                <h3>Registered Users</h3>
+                <button class="btn btn-primary btn-sm" onclick="openModal('addUserModal')">&#43; Add User</button>
+              </div>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th>Institution</th>
+                      <th>Registered</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="usersTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Invitations Tab -->
+            <div class="tab-content" id="invitations">
+              <div class="d-flex justify-between align-center mb-2">
+                <h3>Invitation Management</h3>
+                <button class="btn btn-primary btn-sm" onclick="openModal('createInviteModal')">&#43; Create Invitation</button>
+              </div>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Email</th>
+                      <th>Role</th>
+                      <th>Status</th>
+                      <th>Expires</th>
+                      <th>Created By</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="invitationsTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- CVs Tab -->
+            <div class="tab-content" id="cvs">
+              <div class="d-flex justify-between align-center mb-2">
+                <h3>All CVs</h3>
+                <div class="d-flex gap-1">
+                  <select class="form-control" style="width:auto;" id="filterCVStatus" onchange="loadCVsTab()">
+                    <option value="">All Statuses</option>
+                    <option value="draft">Draft</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                  </select>
+                </div>
+              </div>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Title</th>
+                      <th>Status</th>
+                      <th>Created</th>
+                      <th>Updated</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="cvsTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- QR Codes Tab -->
+            <div class="tab-content" id="qrcodes">
+              <div class="d-flex justify-between align-center mb-2">
+                <h3>QR Code Management</h3>
+              </div>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>CV Title</th>
+                      <th>QR Code ID</th>
+                      <th>Generated Date</th>
+                      <th>Access Count</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="qrTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Reports Tab -->
+            <div class="tab-content" id="reports">
+              <div class="d-flex justify-between align-center mb-2">
+                <h3>Reports</h3>
+                <button class="btn btn-primary btn-sm" onclick="exportReport()">&#11015; Export Report</button>
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+                <div class="card">
+                  <div class="card-header"><h3>CV Statistics</h3></div>
+                  <div class="card-body" id="cvStatsReport"></div>
+                </div>
+                <div class="card">
+                  <div class="card-header"><h3>QR Code Usage</h3></div>
+                  <div class="card-body" id="qrUsageReport"></div>
+                </div>
+                <div class="card">
+                  <div class="card-header"><h3>Student Activity</h3></div>
+                  <div class="card-body" id="studentActivityReport"></div>
+                </div>
+                <div class="card">
+                  <div class="card-header"><h3>Approval Rate</h3></div>
+                  <div class="card-body" id="approvalRateReport"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Audit Logs Tab -->
+            <div class="tab-content" id="audit">
+              <div class="d-flex justify-between align-center mb-2">
+                <h3>Audit Logs</h3>
+                <button class="btn btn-outline btn-sm" onclick="clearAuditLogs()">Clear Logs</button>
+              </div>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Timestamp</th>
+                      <th>User</th>
+                      <th>Role</th>
+                      <th>Action</th>
+                      <th>Details</th>
+                    </tr>
+                  </thead>
+                  <tbody id="auditTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add User Modal -->
+  <div class="modal-overlay" id="addUserModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Add New User</h3>
+        <button class="modal-close" onclick="closeModal('addUserModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="addUserForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>First Name <span class="required">*</span></label>
+              <input type="text" class="form-control" id="addFirstName" required>
+            </div>
+            <div class="form-group">
+              <label>Last Name <span class="required">*</span></label>
+              <input type="text" class="form-control" id="addLastName" required>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Email <span class="required">*</span></label>
+            <input type="email" class="form-control" id="addEmail" required>
+          </div>
+          <div class="form-group">
+            <label>Role <span class="required">*</span></label>
+            <select class="form-control" id="addRole" required>
+              <option value="student">Student</option>
+              <option value="supervisor">Supervisor</option>
+              <option value="examiner">Examiner</option>
+              <option value="recruiter">HR / Recruiter</option>
+              <option value="manager">System Manager</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Institution</label>
+            <input type="text" class="form-control" id="addInstitution">
+          </div>
+          <div class="form-group">
+            <label>Password <span class="required">*</span></label>
+            <input type="password" class="form-control" id="addPassword" required minlength="8">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('addUserModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="addUser()">Create User</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit User Modal -->
+  <div class="modal-overlay" id="editUserModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Edit User</h3>
+        <button class="modal-close" onclick="closeModal('editUserModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="editUserForm">
+          <input type="hidden" id="editUserEmail">
+          <div class="form-row">
+            <div class="form-group">
+              <label>First Name</label>
+              <input type="text" class="form-control" id="editFirstName">
+            </div>
+            <div class="form-group">
+              <label>Last Name</label>
+              <input type="text" class="form-control" id="editLastName">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Role</label>
+            <select class="form-control" id="editRole">
+              <option value="student">Student</option>
+              <option value="supervisor">Supervisor</option>
+              <option value="examiner">Examiner</option>
+              <option value="recruiter">HR / Recruiter</option>
+              <option value="manager">System Manager</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Institution</label>
+            <input type="text" class="form-control" id="editInstitution">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('editUserModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveUserEdit()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Invitation Modal -->
+  <div class="modal-overlay" id="createInviteModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Create Invitation</h3>
+        <button class="modal-close" onclick="closeModal('createInviteModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="createInviteForm">
+          <div class="form-group">
+            <label>Email Address <span class="required">*</span></label>
+            <input type="email" class="form-control" id="inviteEmail" required placeholder="recipient@example.com">
+          </div>
+          <div class="form-group">
+            <label>Role <span class="required">*</span></label>
+            <select class="form-control" id="inviteRole" required>
+              <option value="">Select Role</option>
+              <option value="supervisor">Supervisor</option>
+              <option value="examiner">Examiner</option>
+            </select>
+            <p class="form-hint">Only supervisor and examiner roles can be invited via token</p>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('createInviteModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="createInvitation()">Create & Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    const user = requireAuth(['manager']);
+    let allUsers = [];
+    let allCVs = [];
+    let allLogs = [];
+    let allEvaluations = [];
+    let allInvitations = [];
+
+    if (user) {
+      document.addEventListener('DOMContentLoaded', loadManagerDashboard);
+    }
+
+    async function loadManagerDashboard() {
+      try {
+        const [usersData, cvsData, logsData, evalsData, invitesData] = await Promise.all([
+          apiCall('/users.php?action=list'),
+          apiCall('/cvs.php?action=list'),
+          apiCall('/audit_logs.php?action=list'),
+          apiCall('/evaluations.php?action=list'),
+          apiCall('/invitations.php?action=list')
+        ]);
+        allUsers = usersData.users || [];
+        allCVs = cvsData.cvs || [];
+        allLogs = logsData.logs || [];
+        allEvaluations = evalsData.evaluations || [];
+        allInvitations = invitesData.invitations || [];
+
+        loadStats();
+        loadUsersTab();
+        loadInvitationsTab();
+        loadCVsTab();
+        loadQRTab();
+        loadReportsTab();
+        loadAuditTab();
+      } catch (err) {
+        console.error('Error loading dashboard:', err);
+        showToast('Failed to load data. Make sure PHP server is running.', 'error');
+      }
+    }
+
+    function loadStats() {
+      const approved = allCVs.filter(c => c.status === 'approved');
+      const rejected = allCVs.filter(c => c.status === 'rejected');
+      const pending = allCVs.filter(c => c.status === 'submitted' || c.status === 'under_review');
+      const drafts = allCVs.filter(c => c.status === 'draft');
+
+      document.getElementById('statUsers').textContent = allUsers.length;
+      document.getElementById('statCVs').textContent = allCVs.length;
+      document.getElementById('statApproved').textContent = approved.length;
+      document.getElementById('statQRCodes').textContent = approved.length;
+      document.getElementById('statRejected').textContent = rejected.length;
+
+      document.getElementById('chartApproved').textContent = approved.length;
+      document.getElementById('chartPending').textContent = pending.length;
+      document.getElementById('chartRejected').textContent = rejected.length;
+      document.getElementById('chartDraft').textContent = drafts.length;
+
+      document.getElementById('chartStudents').textContent = allUsers.filter(u => u.role_name === 'student').length;
+      document.getElementById('chartSupervisors').textContent = allUsers.filter(u => u.role_name === 'supervisor').length;
+      document.getElementById('chartExaminers').textContent = allUsers.filter(u => u.role_name === 'examiner').length;
+      document.getElementById('chartRecruiters').textContent = allUsers.filter(u => u.role_name === 'recruiter').length;
+
+      renderBarChart('statusChart', [
+        { label: 'Approved', value: approved.length, color: 'var(--success)' },
+        { label: 'Pending', value: pending.length, color: 'var(--warning)' },
+        { label: 'Rejected', value: rejected.length, color: 'var(--danger)' },
+        { label: 'Draft', value: drafts.length, color: 'var(--gray-400)' }
+      ]);
+
+      renderBarChart('roleChart', [
+        { label: 'Students', value: allUsers.filter(u => u.role_name === 'student').length, color: 'var(--primary)' },
+        { label: 'Supervisors', value: allUsers.filter(u => u.role_name === 'supervisor').length, color: 'var(--success)' },
+        { label: 'Examiners', value: allUsers.filter(u => u.role_name === 'examiner').length, color: '#7c3aed' },
+        { label: 'Recruiters', value: allUsers.filter(u => u.role_name === 'recruiter').length, color: 'var(--accent)' }
+      ]);
+    }
+
+    function renderBarChart(containerId, data) {
+      const container = document.getElementById(containerId);
+      const maxVal = Math.max(...data.map(d => d.value), 1);
+      container.innerHTML = `<div style="display:flex;align-items:flex-end;gap:1rem;height:180px;padding:0.5rem;">
+        ${data.map(d => `
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">
+            <span style="font-size:0.75rem;font-weight:600;margin-bottom:0.25rem;">${d.value}</span>
+            <div style="width:100%;max-width:60px;background:${d.color};border-radius:4px 4px 0 0;height:${(d.value / maxVal) * 150}px;min-height:4px;transition:height 0.3s;"></div>
+            <span style="font-size:0.65rem;color:var(--gray-500);margin-top:0.35rem;text-align:center;">${d.label}</span>
+          </div>
+        `).join('')}
+      </div>`;
+    }
+
+    function loadUsersTab() {
+      const tbody = document.getElementById('usersTableBody');
+      if (allUsers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center text-muted" style="padding:2rem;">No registered users</td></tr>';
+        return;
+      }
+      
+      tbody.innerHTML = allUsers.map(u => {
+        const isHR = u.role_name === 'hr' || u.role_name === 'recruiter';
+        
+        // Handle missing account_status field
+        let accountStatus = 'approved'; // default
+        if (u.hasOwnProperty('account_status')) {
+          accountStatus = u.account_status;
+        } else {
+          // Field doesn't exist, check if user was created recently
+          const createdAt = new Date(u.created_at);
+          const now = new Date();
+          const diffHours = (now - createdAt) / (1000 * 60 * 60);
+          accountStatus = diffHours < 1 ? 'pending' : 'approved';
+        }
+        
+        const statusBadge = isHR ? `<span class="badge badge-${accountStatus === 'approved' ? 'success' : accountStatus === 'rejected' ? 'danger' : 'warning'}">${accountStatus}</span>` : '-';
+        const approvalActions = isHR && accountStatus === 'pending' ? `
+          <button class="btn btn-success btn-sm" onclick="approveUser('${u.user_id}')" title="Approve">&#10003;</button>
+          <button class="btn btn-danger btn-sm" onclick="rejectUser('${u.user_id}')" title="Reject">&#10005;</button>
+        ` : '';
+        return `
+        <tr>
+          <td><strong>${u.first_name} ${u.last_name}</strong></td>
+          <td>${u.email}</td>
+          <td><span class="badge badge-${u.role_name === 'student' ? 'info' : u.role_name === 'manager' ? 'danger' : 'success'}">${u.role_name}</span></td>
+          <td>${statusBadge}</td>
+          <td>${u.institution || 'N/A'}</td>
+          <td>${formatDate(u.created_at)}</td>
+          <td>
+            <div class="d-flex gap-1">
+              ${approvalActions}
+              <button class="btn btn-outline btn-sm" onclick="editUser('${u.user_id}')" title="Edit">&#9998;</button>
+              <button class="btn btn-outline btn-sm" onclick="deleteUser('${u.user_id}')" title="Delete">&#128465;</button>
+            </div>
+          </td>
+        </tr>
+      `}).join('');
+    }
+
+    function loadInvitationsTab() {
+      const tbody = document.getElementById('invitationsTableBody');
+      if (!allInvitations || allInvitations.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted" style="padding:2rem;">No invitations</td></tr>';
+        return;
+      }
+      tbody.innerHTML = allInvitations.map(inv => {
+        const statusClass = inv.status === 'pending' ? 'warning' : inv.status === 'used' ? 'success' : 'danger';
+        return `
+        <tr>
+          <td>${inv.email}</td>
+          <td><span class="badge badge-info">${inv.role}</span></td>
+          <td><span class="badge badge-${statusClass}">${inv.status}</span></td>
+          <td>${formatDate(inv.expires_at)}</td>
+          <td>${inv.first_name ? inv.first_name + ' ' + inv.last_name : 'System'}</td>
+          <td>
+            ${inv.status === 'pending' ? `
+              <button class="btn btn-outline btn-sm" onclick="copyInviteLink('${inv.token}')">&#128203; Copy Link</button>
+              <button class="btn btn-outline btn-sm" onclick="deleteInvitation('${inv.invitation_id}')">&#128465; Delete</button>
+            ` : '<span class="text-muted">-</span>'}
+          </td>
+        </tr>
+      `}).join('');
+    }
+
+    async function createInvitation() {
+      const email = document.getElementById('inviteEmail').value.trim();
+      const role = document.getElementById('inviteRole').value;
+
+      if (!email || !role) {
+        showToast('Please fill in all fields', 'error');
+        return;
+      }
+
+      try {
+        const data = await apiCall('/invitations.php?action=create', {
+          method: 'POST',
+          body: { email, role }
+        });
+
+        showToast('Invitation created successfully!', 'success');
+        closeModal('createInviteModal');
+        
+        // Show the registration link
+        alert(`Invitation created!\n\nRegistration Link:\n${data.register_link}\n\nSend this link to ${email}`);
+        
+        // Reload invitations
+        const invitesData = await apiCall('/invitations.php?action=list');
+        allInvitations = invitesData.invitations || [];
+        loadInvitationsTab();
+      } catch (err) {
+        console.error('Error creating invitation:', err);
+        showToast('Failed to create invitation: ' + err.message, 'error');
+      }
+    }
+
+    function copyInviteLink(token) {
+      const protocol = window.location.protocol;
+      const host = window.location.host;
+      const link = `${protocol}//${host}/register.html?token=${token}`;
+      navigator.clipboard.writeText(link).then(() => {
+        showToast('Link copied to clipboard!', 'success');
+      }).catch(() => {
+        showToast('Failed to copy link', 'error');
+      });
+    }
+
+    async function deleteInvitation(invitationId) {
+      if (!confirm('Delete this invitation?')) return;
+      try {
+        await apiCall('/invitations.php?action=delete&id=' + invitationId, { method: 'DELETE' });
+        showToast('Invitation deleted', 'success');
+        const invitesData = await apiCall('/invitations.php?action=list');
+        allInvitations = invitesData.invitations || [];
+        loadInvitationsTab();
+      } catch (err) {
+        console.error('Error deleting invitation:', err);
+        showToast('Failed to delete invitation: ' + err.message, 'error');
+      }
+    }
+
+    async function approveUser(userId) {
+      if (!confirm('Approve this HR/Recruiter account? They will have full access to the system.')) return;
+      try {
+        await apiCall('/users.php?action=approve&id=' + userId, { method: 'POST' });
+        showToast('User approved successfully!', 'success');
+        const usersData = await apiCall('/users.php?action=list');
+        allUsers = usersData.users || [];
+        loadUsersTab();
+      } catch (err) {
+        console.error('Error approving user:', err);
+        showToast('Failed to approve user: ' + err.message, 'error');
+      }
+    }
+
+    async function rejectUser(userId) {
+      if (!confirm('Reject this HR/Recruiter account? They will not be able to access the system.')) return;
+      try {
+        await apiCall('/users.php?action=reject&id=' + userId, { method: 'POST' });
+        showToast('User rejected successfully!', 'success');
+        const usersData = await apiCall('/users.php?action=list');
+        allUsers = usersData.users || [];
+        loadUsersTab();
+      } catch (err) {
+        console.error('Error rejecting user:', err);
+        showToast('Failed to reject user: ' + err.message, 'error');
+      }
+    }
+
+    function loadCVsTab() {
+      const filter = document.getElementById('filterCVStatus').value;
+      let cvs = allCVs;
+      if (filter) cvs = cvs.filter(c => c.status === filter);
+
+      const tbody = document.getElementById('cvsTableBody');
+      if (cvs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted" style="padding:2rem;">No CVs found</td></tr>';
+        return;
+      }
+      tbody.innerHTML = cvs.map(cv => `
+        <tr>
+          <td><strong>${cv.student_name || cv.student_email}</strong></td>
+          <td>${cv.title}</td>
+          <td><span class="badge badge-${cv.status}">${capitalizeFirst(cv.status)}</span></td>
+          <td>${formatDate(cv.created_at)}</td>
+          <td>${formatDate(cv.updated_at)}</td>
+          <td>
+            <div class="d-flex gap-1">
+              <button class="btn btn-outline btn-sm" onclick="window.open('public-cv.html?id=${cv.cv_id}','_blank')">&#128065; View</button>
+              <button class="btn btn-danger btn-sm" onclick="deleteCV('${cv.cv_id}')">&#10005;</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function loadQRTab() {
+      const cvs = allCVs.filter(c => c.status === 'approved');
+      const tbody = document.getElementById('qrTableBody');
+      if (cvs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted" style="padding:2rem;">No QR codes generated</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = cvs.map(cv => {
+        return `
+          <tr>
+            <td><strong>${cv.student_name || cv.student_email}</strong></td>
+            <td>${cv.title}</td>
+            <td><code style="font-size:0.75rem;background:var(--gray-100);padding:0.15rem 0.5rem;border-radius:4px;">${cv.cv_id.substring(0, 16)}...</code></td>
+            <td>${formatDate(cv.reviewed_at || cv.updated_at)}</td>
+            <td><span class="badge badge-info">QR Generated</span></td>
+            <td><button class="btn btn-outline btn-sm" onclick="verifyQR('${cv.cv_id}')">&#9989; Verify</button></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function loadReportsTab() {
+      document.getElementById('cvStatsReport').innerHTML = `
+        <div style="font-size:0.85rem;">
+          <div class="d-flex justify-between mb-1"><span>Total CVs Created:</span><strong>${allCVs.length}</strong></div>
+          <div class="d-flex justify-between mb-1"><span>Approved:</span><strong class="text-success">${allCVs.filter(c=>c.status==='approved').length}</strong></div>
+          <div class="d-flex justify-between mb-1"><span>Pending:</span><strong class="text-primary">${allCVs.filter(c=>c.status==='submitted' || c.status==='under_review').length}</strong></div>
+          <div class="d-flex justify-between mb-1"><span>Rejected:</span><strong class="text-danger">${allCVs.filter(c=>c.status==='rejected').length}</strong></div>
+          <div class="d-flex justify-between mb-1"><span>Drafts:</span><strong>${allCVs.filter(c=>c.status==='draft').length}</strong></div>
+          <div class="d-flex justify-between"><span>Evaluations:</span><strong>${allEvaluations.length}</strong></div>
+        </div>
+      `;
+
+      document.getElementById('qrUsageReport').innerHTML = `
+        <div style="font-size:0.85rem;">
+          <div class="d-flex justify-between mb-1"><span>Total QR Codes:</span><strong>${allCVs.filter(c=>c.status==='approved').length}</strong></div>
+          <div class="d-flex justify-between mb-1"><span>Total QR Accesses:</span><strong>${allLogs.filter(l => l.action === 'CV_PUBLIC_ACCESS').length}</strong></div>
+          <div class="d-flex justify-between"><span>Unique CVs Accessed:</span><strong>${new Set(allLogs.filter(l=>l.action==='CV_PUBLIC_ACCESS').map(l=>l.details)).size}</strong></div>
+        </div>
+      `;
+
+      const studentUsers = allUsers.filter(u => u.role_name === 'student');
+      document.getElementById('studentActivityReport').innerHTML = `
+        <div style="font-size:0.85rem;">
+          <div class="d-flex justify-between mb-1"><span>Registered Students:</span><strong>${studentUsers.length}</strong></div>
+          <div class="d-flex justify-between mb-1"><span>Students with CVs:</span><strong>${new Set(allCVs.map(c=>c.student_email)).size}</strong></div>
+          <div class="d-flex justify-between"><span>Avg CVs per Student:</span><strong>${studentUsers.length > 0 ? (allCVs.length / studentUsers.length).toFixed(1) : '0'}</strong></div>
+        </div>
+      `;
+
+      const submitted = allCVs.filter(c => c.status !== 'draft');
+      const approvedCount = allCVs.filter(c => c.status === 'approved').length;
+      const rate = submitted.length > 0 ? ((approvedCount / submitted.length) * 100).toFixed(1) : 0;
+      document.getElementById('approvalRateReport').innerHTML = `
+        <div style="text-align:center;padding:1rem;">
+          <div style="font-size:2.5rem;font-weight:700;color:var(--success);">${rate}%</div>
+          <p style="font-size:0.85rem;color:var(--gray-500);">Approval Rate</p>
+          <p style="font-size:0.78rem;color:var(--gray-400);">${approvedCount} of ${submitted.length} submitted CVs approved</p>
+        </div>
+      `;
+    }
+
+    function loadAuditTab() {
+      const tbody = document.getElementById('auditTableBody');
+      if (allLogs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:2rem;">No audit logs</td></tr>';
+        return;
+      }
+      tbody.innerHTML = allLogs.slice(0, 100).map(log => `
+        <tr>
+          <td style="font-size:0.78rem;white-space:nowrap;">${formatDate(log.created_at)}</td>
+          <td>${log.user_email || log.user_id}</td>
+          <td><span class="badge badge-info">${capitalizeFirst(log.action)}</span></td>
+          <td><code style="font-size:0.75rem;">${log.entity_type || '-'}</code></td>
+          <td style="font-size:0.82rem;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${log.details || '-'}</td>
+        </tr>
+      `).join('');
+    }
+
+    async function addUser() {
+      const firstName = document.getElementById('addFirstName').value.trim();
+      const lastName = document.getElementById('addLastName').value.trim();
+      const email = document.getElementById('addEmail').value.trim();
+      const role = document.getElementById('addRole').value;
+      const institution = document.getElementById('addInstitution').value.trim();
+      const password = document.getElementById('addPassword').value;
+
+      if (!firstName || !lastName || !email || !password) {
+        alert('Please fill in all required fields.');
+        return;
+      }
+
+      try {
+        await apiCall('/users.php?action=create', {
+          method: 'POST',
+          body: { email, password, role, first_name: firstName, last_name: lastName, institution }
+        });
+        showToast('User created successfully!', 'success');
+        closeModal('addUserModal');
+        document.getElementById('addUserForm').reset();
+        loadManagerDashboard();
+      } catch (err) {
+        console.error('Error creating user:', err);
+        showToast('Failed to create user: ' + err.message, 'error');
+      }
+    }
+
+    async function editUser(userId) {
+      try {
+        const data = await apiCall('/users.php?action=get&id=' + userId);
+        const u = data.user;
+        if (!u) {
+          showToast('User not found', 'error');
+          return;
+        }
+
+        document.getElementById('editUserEmail').value = u.user_id;
+        document.getElementById('editFirstName').value = u.first_name || '';
+        document.getElementById('editLastName').value = u.last_name || '';
+        document.getElementById('editRole').value = u.role_name || 'student';
+        document.getElementById('editInstitution').value = u.institution || '';
+
+        openModal('editUserModal');
+      } catch (err) {
+        console.error('Error loading user:', err);
+        showToast('Failed to load user', 'error');
+      }
+    }
+
+    async function saveUserEdit() {
+      const userId = document.getElementById('editUserEmail').value;
+      const firstName = document.getElementById('editFirstName').value.trim();
+      const lastName = document.getElementById('editLastName').value.trim();
+      const role = document.getElementById('editRole').value;
+      const institution = document.getElementById('editInstitution').value.trim();
+
+      try {
+        await apiCall('/users.php?action=update&id=' + userId, {
+          method: 'PUT',
+          body: { first_name: firstName, last_name: lastName, role, institution }
+        });
+        showToast('User updated successfully!', 'success');
+        closeModal('editUserModal');
+        loadManagerDashboard();
+      } catch (err) {
+        console.error('Error updating user:', err);
+        showToast('Failed to update user: ' + err.message, 'error');
+      }
+    }
+
+    async function deleteUser(userId) {
+      if (!confirm(`Delete user ${userId}? This cannot be undone.`)) return;
+      try {
+        await apiCall('/users.php?action=delete&id=' + userId, { method: 'DELETE' });
+        showToast('User deleted', 'success');
+        loadManagerDashboard();
+      } catch (err) {
+        console.error('Error deleting user:', err);
+        showToast('Failed to delete user: ' + err.message, 'error');
+      }
+    }
+
+    async function deleteCV(cvId) {
+      if (!confirm('Delete this CV? This cannot be undone.')) return;
+      try {
+        await apiCall('/cvs.php?action=delete&id=' + cvId, { method: 'DELETE' });
+        showToast('CV deleted', 'success');
+        loadManagerDashboard();
+      } catch (err) {
+        console.error('Error deleting CV:', err);
+        showToast('Failed to delete CV: ' + err.message, 'error');
+      }
+    }
+
+    async function verifyQR(cvId) {
+      try {
+        const data = await apiCall('/qr.php?action=get&cv_id=' + cvId);
+        if (data.qr) {
+          alert(`QR Code Verified!\n\nCV ID: ${cvId}\nStatus: Active\n\nThis QR code is valid and unique.`);
+        } else {
+          alert('QR Code verification failed. QR not found.');
+        }
+      } catch (err) {
+        console.error('Error verifying QR:', err);
+        alert('QR Code verification failed.');
+      }
+    }
+
+    async function clearAuditLogs() {
+      if (!confirm('Clear all audit logs? This cannot be undone.')) return;
+      try {
+        await apiCall('/audit_logs.php?action=clear', { method: 'DELETE' });
+        showToast('Audit logs cleared', 'success');
+        loadAuditTab();
+      } catch (err) {
+        console.error('Error clearing logs:', err);
+        showToast('Failed to clear logs: ' + err.message, 'error');
+      }
+    }
+
+    function exportReport() {
+      const report = {
+        generatedAt: new Date().toISOString(),
+        totalUsers: allUsers.length,
+        totalCVs: allCVs.length,
+        approvedCVs: allCVs.filter(c => c.status === 'approved').length,
+        pendingCVs: allCVs.filter(c => c.status === 'submitted' || c.status === 'under_review').length,
+        rejectedCVs: allCVs.filter(c => c.status === 'rejected').length,
+        draftCVs: allCVs.filter(c => c.status === 'draft').length,
+        usersByRole: {
+          students: allUsers.filter(u => u.role_name === 'student').length,
+          supervisors: allUsers.filter(u => u.role_name === 'supervisor').length,
+          examiners: allUsers.filter(u => u.role_name === 'examiner').length,
+          recruiters: allUsers.filter(u => u.role_name === 'recruiter').length,
+          managers: allUsers.filter(u => u.role_name === 'manager').length
+        }
+      };
+      
+      const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'system-report-' + new Date().toISOString().split('T')[0] + '.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

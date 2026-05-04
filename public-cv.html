@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View CV - Digital CV System</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="public-cv-wrapper">
+    <!-- Header -->
+    <header class="public-cv-header">
+      <div class="brand">
+        <div style="width:32px;height:32px;background:var(--primary);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;color:var(--white);font-weight:700;font-size:0.8rem;">CV</div>
+        Digital CV System
+      </div>
+      <div class="d-flex gap-1">
+        <button class="btn btn-outline btn-sm" onclick="printCV()">&#128424; Print</button>
+        <button class="btn btn-primary btn-sm" onclick="downloadPDF()">&#11015; Download PDF</button>
+      </div>
+    </header>
+
+    <!-- CV Content -->
+    <div class="public-cv-content">
+      <div id="cvContent">
+        <div class="empty-state" style="padding:4rem;">
+          <div class="empty-icon">&#128196;</div>
+          <h3>CV Not Found</h3>
+          <p>The CV you're looking for doesn't exist or hasn't been approved yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer style="text-align:center;padding:1.5rem;font-size:0.78rem;color:var(--gray-400);">
+      Powered by Digital CV System with QR Code Integration &copy; 2026
+    </footer>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', loadPublicCV);
+
+    async function loadPublicCV() {
+      const params = new URLSearchParams(window.location.search);
+      const cvId = params.get('id');
+
+      if (!cvId) {
+        showNotFound();
+        return;
+      }
+
+      try {
+        const data = await apiCall('/cvs.php?action=get&id=' + cvId);
+        const cv = data.cv;
+
+        if (!cv || cv.status !== 'approved') {
+          showNotFound();
+          return;
+        }
+
+        const initials = (cv.student_name || 'U').split(' ').map(n => n[0]).join('').toUpperCase();
+
+        document.getElementById('cvContent').innerHTML = `
+          <div class="cv-preview fade-in">
+            <div class="cv-preview-header">
+              <div class="cv-avatar">${initials}</div>
+              <div class="cv-name">
+                <h2>${cv.student_name || 'Unknown'}</h2>
+                <p>${cv.title}</p>
+              </div>
+            </div>
+            <div class="cv-preview-body">
+              <!-- Contact Info -->
+              <div class="cv-section">
+                <h3>&#128231; Contact Information</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;font-size:0.85rem;">
+                  <div><strong>Email:</strong> ${cv.student_email || 'N/A'}</div>
+                  <div><strong>Phone:</strong> ${cv.user_phone || 'N/A'}</div>
+                  <div><strong>Institution:</strong> ${cv.institution || 'N/A'}</div>
+                  <div><strong>LinkedIn:</strong> ${cv.linkedin_url ? `<a href="${cv.linkedin_url}" target="_blank">${cv.linkedin_url}</a>` : 'N/A'}</div>
+                </div>
+              </div>
+
+              <!-- Summary -->
+              ${cv.personal_summary ? `
+              <div class="cv-section">
+                <h3>&#128221; Professional Summary</h3>
+                <p style="font-size:0.85rem;">${cv.personal_summary}</p>
+              </div>` : ''}
+
+              <!-- Education -->
+              ${cv.education && cv.education.length > 0 ? `
+              <div class="cv-section">
+                <h3>&#127891; Education</h3>
+                ${cv.education.map(ed => `
+                  <div class="cv-item">
+                    <h4>${ed.degree}</h4>
+                    <div class="cv-item-meta">${ed.institution_name} | ${formatDate(ed.start_date)} - ${ed.end_date ? formatDate(ed.end_date) : 'Present'}</div>
+                    ${ed.description ? `<p>${ed.description}</p>` : ''}
+                  </div>
+                `).join('')}
+              </div>` : ''}
+
+              <!-- Experience -->
+              ${cv.experience && cv.experience.length > 0 ? `
+              <div class="cv-section">
+                <h3>&#128188; Work Experience</h3>
+                ${cv.experience.map(ex => `
+                  <div class="cv-item">
+                    <h4>${ex.job_title}</h4>
+                    <div class="cv-item-meta">${ex.company_name} | ${formatDate(ex.start_date)} - ${ex.end_date ? formatDate(ex.end_date) : 'Present'}</div>
+                    ${ex.description ? `<p>${ex.description}</p>` : ''}
+                  </div>
+                `).join('')}
+              </div>` : ''}
+
+              <!-- Skills -->
+              ${cv.skill_names && cv.skill_names.length > 0 ? `
+              <div class="cv-section">
+                <h3>&#128736; Skills</h3>
+                <div class="cv-skills-list">
+                  ${cv.skill_names.map(s => `<span class="cv-skill-tag">${s}</span>`).join('')}
+                </div>
+              </div>` : ''}
+
+              <!-- Certifications -->
+              ${cv.certification_names && cv.certification_names.length > 0 ? `
+              <div class="cv-section">
+                <h3>&#127942; Certifications</h3>
+                <ul style="padding-left:1.2rem;font-size:0.85rem;">
+                  ${cv.certification_names.map(c => `<li>${c}</li>`).join('')}
+                </ul>
+              </div>` : ''}
+
+              <!-- Evaluation (if exists) -->
+              ${cv.evaluation ? `
+              <div class="cv-section">
+                <h3>&#11088; Academic Evaluation</h3>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;text-align:center;">
+                  <div>
+                    <div style="font-size:1.5rem;font-weight:700;color:var(--primary);">${cv.evaluation.content_quality_score}</div>
+                    <div style="font-size:0.75rem;color:var(--gray-500);">Content</div>
+                  </div>
+                  <div>
+                    <div style="font-size:1.5rem;font-weight:700;color:var(--primary);">${cv.evaluation.presentation_score}</div>
+                    <div style="font-size:0.75rem;color:var(--gray-500);">Presentation</div>
+                  </div>
+                  <div>
+                    <div style="font-size:1.5rem;font-weight:700;color:var(--primary);">${cv.evaluation.completeness_score}</div>
+                    <div style="font-size:0.75rem;color:var(--gray-500);">Completeness</div>
+                  </div>
+                </div>
+                <div style="text-align:center;margin-top:0.75rem;">
+                  <span class="badge badge-approved" style="font-size:0.85rem;padding:0.35rem 1rem;">Overall: ${cv.evaluation.overall_score} / 10</span>
+                </div>
+                ${cv.evaluation.comments ? `<p style="font-size:0.82rem;color:var(--gray-600);margin-top:0.75rem;font-style:italic;">"${cv.evaluation.comments}"</p>` : ''}
+              </div>` : ''}
+
+              <!-- QR Code -->
+              <div class="cv-section" style="text-align:center;">
+                <h3>&#128242; QR Code</h3>
+                <div class="qr-container">
+                  <div class="qr-image" id="publicQRCode"></div>
+                  <p class="text-muted" style="font-size:0.78rem;">Scan this QR code to access this CV digitally</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        // Generate QR code
+        const cvUrl = window.location.href;
+        generateQRCode('publicQRCode', cvUrl);
+      } catch (err) {
+        console.error('Error loading CV:', err);
+        showNotFound();
+      }
+    }
+
+    function showNotFound() {
+      document.getElementById('cvContent').innerHTML = `
+        <div class="empty-state" style="padding:4rem;">
+          <div class="empty-icon">&#128196;</div>
+          <h3>CV Not Found</h3>
+          <p>The CV you're looking for doesn't exist or hasn't been approved yet.</p>
+          <a href="login.html" class="btn btn-primary mt-2">Go to Login</a>
+        </div>
+      `;
+    }
+
+    function generateQRCode(containerId, data) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      
+      container.innerHTML = '';
+      
+      new QRCode(container, {
+        text: data,
+        width: 160,
+        height: 160,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    function printCV() {
+      window.print();
+    }
+
+    function downloadPDF() {
+      alert('PDF download will be available when the backend is implemented. Please use the Print option for now.');
+    }
+  </script>
+</body>
+</html>

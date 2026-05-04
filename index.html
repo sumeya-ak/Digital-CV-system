@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital CV System - QR Code Integration</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .hero {
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--primary) 0%, #7c3aed 50%, var(--secondary) 100%);
+      color: var(--white);
+      display: flex;
+      flex-direction: column;
+    }
+    .hero-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+    }
+    .hero-nav .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+    .hero-nav .brand .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.2);
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+    .hero-body {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+    .hero-content {
+      max-width: 700px;
+      text-align: center;
+    }
+    .hero-content h1 {
+      font-size: 2.75rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+      line-height: 1.15;
+    }
+    .hero-content h1 span {
+      background: linear-gradient(90deg, #fbbf24, #f59e0b);
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-content p {
+      font-size: 1.15rem;
+      opacity: 0.85;
+      margin-bottom: 2rem;
+      line-height: 1.7;
+    }
+    .hero-actions {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .btn-hero {
+      padding: 0.85rem 2rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: var(--radius);
+      border: none;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-hero-primary {
+      background: var(--white);
+      color: var(--primary);
+    }
+    .btn-hero-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+    .btn-hero-outline {
+      background: transparent;
+      color: var(--white);
+      border: 2px solid rgba(255,255,255,0.4);
+    }
+    .btn-hero-outline:hover {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.7);
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+      padding: 4rem 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      margin-top: -3rem;
+      position: relative;
+      z-index: 10;
+    }
+    .feature-card {
+      text-align: center;
+      padding: 1.5rem;
+    }
+    .feature-card .feature-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-lg);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .feature-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 0.5rem;
+    }
+    .feature-card p {
+      font-size: 0.85rem;
+      color: var(--gray-500);
+      line-height: 1.6;
+    }
+    .roles-section {
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+    .roles-section h2 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 0.5rem;
+    }
+    .roles-section > p {
+      color: var(--gray-500);
+      margin-bottom: 2.5rem;
+    }
+    .roles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.25rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .role-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      transition: var(--transition);
+      cursor: pointer;
+    }
+    .role-card:hover {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .role-card .role-icon {
+      font-size: 2rem;
+      margin-bottom: 0.75rem;
+    }
+    .role-card h4 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 0.35rem;
+    }
+    .role-card p {
+      font-size: 0.78rem;
+      color: var(--gray-500);
+    }
+    footer {
+      text-align: center;
+      padding: 2rem;
+      font-size: 0.82rem;
+      color: var(--gray-400);
+      border-top: 1px solid var(--gray-200);
+    }
+    @media (max-width: 768px) {
+      .hero-content h1 { font-size: 1.75rem; }
+      .hero-content p { font-size: 0.95rem; }
+      .features { margin-top: -1.5rem; padding: 2rem 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <div class="hero">
+    <nav class="hero-nav">
+      <div class="brand">
+        <div class="logo-icon">CV</div>
+        Digital CV System
+      </div>
+      <div style="display:flex;gap:0.75rem;">
+        <a href="login.html" class="btn-hero btn-hero-outline" style="padding:0.5rem 1.25rem;font-size:0.85rem;">Sign In</a>
+        <a href="register.html" class="btn-hero btn-hero-primary" style="padding:0.5rem 1.25rem;font-size:0.85rem;">Register</a>
+      </div>
+    </nav>
+    <div class="hero-body">
+      <div class="hero-content">
+        <h1>Create, Approve &amp; Share Your <span>Digital CV</span> with QR Codes</h1>
+        <p>A complete platform for graduate students to build professional CVs, get academic approval, and share with recruiters through secure QR codes.</p>
+        <div class="hero-actions">
+          <a href="register.html" class="btn-hero btn-hero-primary">Get Started Free</a>
+          <a href="#features" class="btn-hero btn-hero-outline">Learn More</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="features" style="padding:0 2rem;">
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:var(--primary-light);color:var(--primary);">&#128221;</div>
+        <h3>CV Builder</h3>
+        <p>Step-by-step CV creation with education, experience, skills, and document uploads.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#d1fae5;color:var(--success);">&#9989;</div>
+        <h3>Approval Workflow</h3>
+        <p>Supervisors review, approve or reject CVs with comments. Full tracking of status.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#fef3c7;color:var(--warning);">&#128242;</div>
+        <h3>QR Code Sharing</h3>
+        <p>Auto-generated unique QR codes for approved CVs. Share via email, link, or social media.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#ede9fe;color:#7c3aed;">&#128270;</div>
+        <h3>Recruiter Access</h3>
+        <p>HR professionals scan QR codes and instantly view verified candidate CVs.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="roles-section">
+    <h2>Access For Every Role</h2>
+    <p>Choose your role and get started</p>
+    <div class="roles-grid">
+      <a href="register.html" class="role-card" style="text-decoration:none;">
+        <div class="role-icon">&#127891;</div>
+        <h4>Graduate Student</h4>
+        <p>Create, manage and share your CV</p>
+      </a>
+      <a href="register.html" class="role-card" style="text-decoration:none;">
+        <div class="role-icon">&#128100;</div>
+        <h4>Supervisor</h4>
+        <p>Review and approve student CVs</p>
+      </a>
+      <a href="register.html" class="role-card" style="text-decoration:none;">
+        <div class="role-icon">&#128203;</div>
+        <h4>Examiner</h4>
+        <p>Evaluate CV quality and scoring</p>
+      </a>
+      <a href="register.html" class="role-card" style="text-decoration:none;">
+        <div class="role-icon">&#128188;</div>
+        <h4>HR / Recruiter</h4>
+        <p>Scan QR codes and find talent</p>
+      </a>
+    </div>
+  </section>
+
+  <footer>
+    Digital CV System with QR Code Integration &copy; 2026 | Built for ALX Hackathon
+  </footer>
+</body>
+</html>

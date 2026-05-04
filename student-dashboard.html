@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Dashboard - Digital CV System</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon">CV</div>
+        <div>
+          <h2>Digital CV</h2>
+          <span class="subtitle">Student Portal</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Main</div>
+        <a href="student-dashboard.html" class="active">
+          <span class="nav-icon">&#127968;</span> Dashboard
+        </a>
+        <a href="student-cv-create.html">
+          <span class="nav-icon">&#128221;</span> Create CV
+        </a>
+        <a href="#" onclick="openModal('myCVsModal')">
+          <span class="nav-icon">&#128196;</span> My CVs
+          <span class="badge" id="cvCountBadge">0</span>
+        </a>
+        <div class="nav-section">QR Code</div>
+        <a href="#" onclick="openModal('qrModal')">
+          <span class="nav-icon">&#128242;</span> My QR Code
+        </a>
+        <a href="#" onclick="openModal('shareModal')">
+          <span class="nav-icon">&#128228;</span> Share CV
+        </a>
+        <div class="nav-section">Account</div>
+        <a href="#" onclick="openModal('profileModal')">
+          <span class="nav-icon">&#128100;</span> Profile
+        </a>
+        <a href="#" onclick="logout()">
+          <span class="nav-icon">&#128682;</span> Logout
+        </a>
+      </nav>
+      <div class="sidebar-user">
+        <div class="avatar">S</div>
+        <div class="user-info">
+          <div class="name">Student</div>
+          <div class="role">Graduate Student</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="top-header">
+        <div class="d-flex align-center gap-1">
+          <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+          <h1 class="page-title">Dashboard</h1>
+        </div>
+        <div class="header-actions">
+          <div class="search-box">
+            <span class="search-icon">&#128269;</span>
+            <input type="text" placeholder="Search CVs...">
+          </div>
+          <button class="notification-btn" onclick="openModal('notifModal')">
+            &#128276;<span class="notif-dot"></span>
+          </button>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">&#128196;</div>
+            <div class="stat-info">
+              <h4 id="statTotalCVs">0</h4>
+              <p>Total CVs</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">&#9989;</div>
+            <div class="stat-info">
+              <h4 id="statApproved">0</h4>
+              <p>Approved</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">&#9203;</div>
+            <div class="stat-info">
+              <h4 id="statPending">0</h4>
+              <p>Pending</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon red">&#10060;</div>
+            <div class="stat-info">
+              <h4 id="statRejected">0</h4>
+              <p>Rejected</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions + Recent -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;">
+          <!-- Quick Actions -->
+          <div class="card">
+            <div class="card-header">
+              <h3>Quick Actions</h3>
+            </div>
+            <div class="card-body">
+              <div class="d-flex flex-wrap gap-1">
+                <a href="student-cv-create.html" class="btn btn-primary">&#128221; Create New CV</a>
+                <button class="btn btn-outline" onclick="openModal('myCVsModal')">&#128196; View My CVs</button>
+                <button class="btn btn-outline" onclick="openModal('qrModal')">&#128242; View QR Code</button>
+                <button class="btn btn-outline" onclick="openModal('shareModal')">&#128228; Share CV</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="card">
+            <div class="card-header">
+              <h3>Recent Activity</h3>
+            </div>
+            <div class="card-body">
+              <div id="recentActivity">
+                <div class="empty-state" style="padding:1.5rem;">
+                  <p class="text-muted">No recent activity</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- My CVs Table -->
+        <div class="card mt-3">
+          <div class="card-header">
+            <h3>My Curriculum Vitae</h3>
+            <a href="student-cv-create.html" class="btn btn-primary btn-sm">&#43; New CV</a>
+          </div>
+          <div class="card-body">
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th>Last Modified</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="cvTableBody">
+                  <tr>
+                    <td colspan="5" class="text-center text-muted" style="padding:2rem;">No CVs created yet. <a href="student-cv-create.html">Create your first CV</a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- QR Code Modal -->
+  <div class="modal-overlay" id="qrModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>My QR Code</h3>
+        <button class="modal-close" onclick="closeModal('qrModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="qrContent">
+          <div class="empty-state">
+            <div class="empty-icon">&#128242;</div>
+            <h3>No Approved CV</h3>
+            <p>Your QR code will be generated once your CV is approved by a supervisor.</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('qrModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Share Modal -->
+  <div class="modal-overlay" id="shareModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Share Your CV</h3>
+        <button class="modal-close" onclick="closeModal('shareModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="shareContent">
+          <div class="empty-state">
+            <div class="empty-icon">&#128228;</div>
+            <h3>Nothing to Share</h3>
+            <p>You need an approved CV before you can share your QR code.</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('shareModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- My CVs Modal -->
+  <div class="modal-overlay" id="myCVsModal">
+    <div class="modal" style="max-width:700px;">
+      <div class="modal-header">
+        <h3>My CVs</h3>
+        <button class="modal-close" onclick="closeModal('myCVsModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="myCVsList"></div>
+      </div>
+      <div class="modal-footer">
+        <a href="student-cv-create.html" class="btn btn-primary btn-sm">&#43; New CV</a>
+        <button class="btn btn-outline" onclick="closeModal('myCVsModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Notification Modal -->
+  <div class="modal-overlay" id="notifModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Notifications</h3>
+        <button class="modal-close" onclick="closeModal('notifModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="notifList">
+          <div class="empty-state" style="padding:1.5rem;">
+            <p class="text-muted">No new notifications</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Modal -->
+  <div class="modal-overlay" id="profileModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>My Profile</h3>
+        <button class="modal-close" onclick="closeModal('profileModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="profileForm">
+          <div class="form-row">
+            <div class="form-group">
+              <label>First Name</label>
+              <input type="text" class="form-control" id="profFirstName">
+            </div>
+            <div class="form-group">
+              <label>Last Name</label>
+              <input type="text" class="form-control" id="profLastName">
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" class="form-control" id="profEmail" disabled>
+          </div>
+          <div class="form-group">
+            <label>Institution</label>
+            <input type="text" class="form-control" id="profInstitution">
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" class="form-control" id="profPhone" placeholder="+251...">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary" onclick="saveProfile()">Save Changes</button>
+        <button class="btn btn-outline" onclick="closeModal('profileModal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    const user = requireAuth(['student']);
+    if (user) {
+      document.addEventListener('DOMContentLoaded', () => loadStudentDashboard(user));
+    }
+
+    async function loadStudentDashboard(user) {
+      try {
+        const data = await apiCall('/cvs.php?action=list');
+        const cvs = data.cvs || [];
+        
+        // Update stats
+        document.getElementById('statTotalCVs').textContent = cvs.length;
+        document.getElementById('statApproved').textContent = cvs.filter(c => c.status === 'approved').length;
+        document.getElementById('statPending').textContent = cvs.filter(c => c.status === 'submitted').length;
+        document.getElementById('statRejected').textContent = cvs.filter(c => c.status === 'rejected').length;
+        document.getElementById('cvCountBadge').textContent = cvs.length;
+
+        // Populate CV table
+        const tbody = document.getElementById('cvTableBody');
+        if (cvs.length > 0) {
+          tbody.innerHTML = cvs.map(cv => `
+            <tr>
+              <td><strong>${cv.title}</strong></td>
+              <td><span class="badge badge-${cv.status}">${capitalizeFirst(cv.status)}</span></td>
+              <td>${formatDate(cv.created_at)}</td>
+              <td>${formatDate(cv.updated_at)}</td>
+              <td>
+                <div class="d-flex gap-1">
+                  <button class="btn btn-outline btn-sm" onclick="viewCV('${cv.cv_id}')">&#128065; View</button>
+                  ${cv.status === 'draft' ? `<a href="student-cv-create.html?edit=${cv.cv_id}" class="btn btn-outline btn-sm">&#9998; Edit</a>` : ''}
+                  ${cv.status === 'draft' ? `<button class="btn btn-primary btn-sm" onclick="submitCV('${cv.cv_id}')">&#10148; Submit</button>` : ''}
+                </div>
+              </td>
+            </tr>
+          `).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted">No CVs yet. Create your first CV!</td></tr>';
+        }
+
+        // Load profile
+        document.getElementById('profFirstName').value = user.first_name || '';
+        document.getElementById('profLastName').value = user.last_name || '';
+        document.getElementById('profEmail').value = user.email || '';
+        document.getElementById('profInstitution').value = user.institution || '';
+
+        // QR & Share for approved CV
+        const approvedCV = cvs.find(c => c.status === 'approved');
+        if (approvedCV) {
+          loadQRCode(approvedCV.cv_id);
+        }
+
+        // Load notifications
+        loadNotifications();
+      } catch (err) {
+        console.error('Error loading dashboard:', err);
+        showToast('Failed to load data. Make sure PHP server is running.', 'error');
+      }
+    }
+
+    async function loadQRCode(cvId) {
+      try {
+        const data = await apiCall('/qr.php?action=get&cv_id=' + cvId);
+        const qr = data.qr;
+        if (qr && qr.access_url) {
+          const cvUrl = qr.access_url;
+          document.getElementById('qrContent').innerHTML = `
+            <div class="qr-container">
+              <div class="qr-image" id="qrCodeImage"></div>
+              <p class="text-muted mb-2" style="font-size:0.8rem;">Scan to view CV</p>
+              <div class="qr-actions">
+                <button class="btn btn-primary btn-sm" onclick="downloadQR()">&#11015; Download QR</button>
+                <button class="btn btn-outline btn-sm" onclick="copyCVLink()">&#128203; Copy Link</button>
+              </div>
+            </div>
+          `;
+          generateQRCode('qrCodeImage', cvUrl);
+
+          document.getElementById('shareContent').innerHTML = `
+            <div class="form-group">
+              <label>CV Link</label>
+              <div class="d-flex gap-1">
+                <input type="text" class="form-control" id="cvShareLink" value="${cvUrl}" readonly>
+                <button class="btn btn-primary btn-sm" onclick="copyCVLink()">&#128203; Copy</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Share via Email</label>
+              <div class="d-flex gap-1">
+                <input type="email" class="form-control" id="shareEmail" placeholder="recruiter@company.com">
+                <button class="btn btn-outline btn-sm" onclick="shareViaEmail()">&#9993; Send</button>
+              </div>
+            </div>
+            <p class="form-hint mt-1">You can also share your QR code image directly via social media or messaging apps.</p>
+          `;
+        }
+      } catch (err) {
+        console.error('Error loading QR code:', err);
+      }
+    }
+
+    function viewCV(cvId) {
+      window.location.href = 'public-cv.html?id=' + cvId;
+    }
+
+    async function submitCV(cvId) {
+      if (!confirm('Submit this CV for approval?')) return;
+      try {
+        await apiCall('/cvs.php?action=submit&id=' + cvId, { method: 'POST' });
+        showToast('CV submitted for approval!', 'success');
+        loadStudentDashboard(getCurrentUser());
+      } catch (err) {
+        console.error('Error submitting CV:', err);
+        showToast('Failed to submit CV: ' + err.message, 'error');
+      }
+    }
+
+    async function saveProfile() {
+      const data = {
+        first_name: document.getElementById('profFirstName').value,
+        last_name: document.getElementById('profLastName').value,
+        institution: document.getElementById('profInstitution').value,
+        phone: document.getElementById('profPhone').value
+      };
+      try {
+        await apiCall('/users.php?action=profile', { method: 'PUT', body: data });
+        // Update local user
+        const user = getCurrentUser();
+        Object.assign(user, data);
+        user.name = user.first_name + ' ' + user.last_name;
+        localStorage.setItem('dcv_current_user', JSON.stringify(user));
+        showToast('Profile saved!', 'success');
+        closeModal('profileModal');
+        initSidebarUser();
+      } catch (err) {
+        console.error('Error saving profile:', err);
+        showToast('Failed to save profile: ' + err.message, 'error');
+      }
+    }
+
+    function copyCVLink() {
+      const linkEl = document.getElementById('cvShareLink');
+      if (linkEl) {
+        navigator.clipboard.writeText(linkEl.value).then(() => showToast('Link copied!', 'success'));
+      }
+    }
+
+    function shareViaEmail() {
+      const email = document.getElementById('shareEmail').value;
+      if (email) {
+        const link = document.getElementById('cvShareLink').value;
+        window.open(`mailto:${email}?subject=My Digital CV&body=View my digital CV: ${link}`);
+      }
+    }
+
+    function downloadQR() {
+      const canvas = document.querySelector('#qrCodeImage canvas');
+      if (canvas) {
+        const link = document.createElement('a');
+        link.download = 'my-cv-qr-code.png';
+        link.href = canvas.toDataURL();
+        link.click();
+      }
+    }
+
+    function generateQRCode(containerId, data) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+      
+      container.innerHTML = '';
+      
+      new QRCode(container, {
+        text: data,
+        width: 160,
+        height: 160,
+        colorDark: '#000000',
+        colorLight: '#ffffff',
+        correctLevel: QRCode.CorrectLevel.H
+      });
+    }
+
+    async function loadNotifications() {
+      try {
+        const data = await apiCall('/notifications.php?action=list');
+        const notifs = data.notifications || [];
+        const notifList = document.getElementById('notifList');
+        if (notifs.length > 0) {
+          notifList.innerHTML = notifs.map(n => `
+            <div class="alert alert-${n.type === 'error' ? 'danger' : n.type === 'success' ? 'success' : 'info'}" style="margin-bottom:0.5rem;">
+              <strong>${n.title}</strong><br>
+              <small>${n.message}</small>
+              <div style="font-size:0.75rem; opacity:0.7; margin-top:0.25rem;">${formatDateTime(n.created_at)}</div>
+            </div>
+          `).join('');
+        } else {
+          notifList.innerHTML = '<div class="empty-state" style="padding:1.5rem;"><p class="text-muted">No new notifications</p></div>';
+        }
+      } catch (err) {
+        console.error('Error loading notifications:', err);
+      }
+    }
+  </script>
+</body>
+</html>

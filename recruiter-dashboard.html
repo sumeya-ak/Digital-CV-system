@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HR/Recruiter Portal - Digital CV System</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo-icon">CV</div>
+        <div>
+          <h2>Digital CV</h2>
+          <span class="subtitle">Recruiter Portal</span>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">Main</div>
+        <a href="recruiter-dashboard.html" class="active">
+          <span class="nav-icon">&#127968;</span> Dashboard
+        </a>
+        <a href="#" onclick="switchTab('main','browse')">
+          <span class="nav-icon">&#128269;</span> Browse CVs
+        </a>
+        <a href="#" onclick="switchTab('main','scanned')">
+          <span class="nav-icon">&#128242;</span> Scanned CVs
+        </a>
+        <div class="nav-section">Search</div>
+        <a href="#" onclick="openModal('searchModal')">
+          <span class="nav-icon">&#128270;</span> Advanced Search
+        </a>
+        <div class="nav-section">Account</div>
+        <a href="#" onclick="logout()">
+          <span class="nav-icon">&#128682;</span> Logout
+        </a>
+      </nav>
+      <div class="sidebar-user">
+        <div class="avatar">R</div>
+        <div class="user-info">
+          <div class="name">Recruiter</div>
+          <div class="role">HR / Recruiter</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <header class="top-header">
+        <div class="d-flex align-center gap-1">
+          <button class="menu-toggle" onclick="toggleSidebar()">&#9776;</button>
+          <h1 class="page-title">HR / Recruiter Portal</h1>
+        </div>
+        <div class="header-actions">
+          <div class="search-box">
+            <span class="search-icon">&#128269;</span>
+            <input type="text" placeholder="Search by name, skill, institution..." id="globalSearch" oninput="searchCVs()">
+          </div>
+        </div>
+      </header>
+
+      <div class="page-content">
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">&#128196;</div>
+            <div class="stat-info">
+              <h4 id="statAvailable">0</h4>
+              <p>Available CVs</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">&#128242;</div>
+            <div class="stat-info">
+              <h4 id="statScanned">0</h4>
+              <p>CVs Scanned</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon purple">&#127891;</div>
+            <div class="stat-info">
+              <h4 id="statInstitutions">0</h4>
+              <p>Institutions</p>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">&#128736;</div>
+            <div class="stat-info">
+              <h4 id="statSkills">0</h4>
+              <p>Unique Skills</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- QR Code Scanner Section -->
+        <div class="card mb-3">
+          <div class="card-header">
+            <h3>&#128242; Scan QR Code</h3>
+          </div>
+          <div class="card-body">
+            <div class="d-flex align-center gap-2 flex-wrap">
+              <div style="flex:1;min-width:280px;">
+                <p style="font-size:0.85rem;color:var(--gray-600);margin-bottom:0.75rem;">Enter the CV access code from a QR code, or paste the CV link directly:</p>
+                <div class="d-flex gap-1">
+                  <input type="text" class="form-control" id="qrCodeInput" placeholder="Enter CV code or paste link...">
+                  <button class="btn btn-primary" onclick="accessCVByCode()">Access CV</button>
+                </div>
+                <p class="form-hint mt-1">You can also scan a QR code using your phone camera and open the link directly.</p>
+              </div>
+              <div style="text-align:center;padding:1rem;">
+                <div style="width:120px;height:120px;border:2px dashed var(--gray-300);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:var(--gray-300);background:var(--gray-50);">
+                  &#128247;
+                </div>
+                <p style="font-size:0.75rem;color:var(--gray-400);margin-top:0.5rem;">Camera scan placeholder</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="card">
+          <div class="card-header">
+            <div data-tab-group="main" style="display:flex;gap:0;">
+              <button class="tab active" data-tab="browse" onclick="switchTab('main','browse')">Browse CVs</button>
+              <button class="tab" data-tab="scanned" onclick="switchTab('main','scanned')">Scanned / Viewed</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <!-- Browse Tab -->
+            <div class="tab-content active" id="browse">
+              <div class="d-flex gap-1 mb-2 flex-wrap">
+                <select class="form-control" style="width:auto;" id="filterSkill" onchange="searchCVs()">
+                  <option value="">All Skills</option>
+                </select>
+                <select class="form-control" style="width:auto;" id="filterInstitution" onchange="searchCVs()">
+                  <option value="">All Institutions</option>
+                </select>
+              </div>
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Title</th>
+                      <th>Skills</th>
+                      <th>Education</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="browseTableBody">
+                    <tr><td colspan="5" class="text-center text-muted" style="padding:2rem;">No approved CVs available</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Scanned Tab -->
+            <div class="tab-content" id="scanned">
+              <div class="table-wrapper">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>CV Title</th>
+                      <th>Viewed Date</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="scannedTableBody">
+                    <tr><td colspan="4" class="text-center text-muted" style="padding:2rem;">No CVs viewed yet</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Search Modal -->
+  <div class="modal-overlay" id="searchModal">
+    <div class="modal" style="max-width:500px;">
+      <div class="modal-header">
+        <h3>Advanced Search</h3>
+        <button class="modal-close" onclick="closeModal('searchModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Keyword</label>
+          <input type="text" class="form-control" id="advKeyword" placeholder="Search in CV content...">
+        </div>
+        <div class="form-group">
+          <label>Skill</label>
+          <input type="text" class="form-control" id="advSkill" placeholder="e.g., Python, Project Management">
+        </div>
+        <div class="form-group">
+          <label>Institution</label>
+          <input type="text" class="form-control" id="advInstitution" placeholder="University name">
+        </div>
+        <div class="form-group">
+          <label>Qualification</label>
+          <input type="text" class="form-control" id="advQualification" placeholder="e.g., BSc, MSc, PhD">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline" onclick="closeModal('searchModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="advancedSearch()">Search</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    const user = requireAuth(['recruiter']);
+    let allCVs = [];
+    let scannedCVs = [];
+
+    if (user) {
+      document.addEventListener('DOMContentLoaded', loadRecruiterDashboard);
+    }
+
+    async function loadRecruiterDashboard() {
+      try {
+        const data = await apiCall('/cvs.php?action=list');
+        allCVs = (data.cvs || []).filter(cv => cv.status === 'approved');
+        
+        // Load scanned CVs from localStorage (for demo purposes)
+        scannedCVs = JSON.parse(localStorage.getItem('dcv_scanned_' + user.email) || '[]');
+
+        // Stats
+        document.getElementById('statAvailable').textContent = allCVs.length;
+        document.getElementById('statScanned').textContent = scannedCVs.length;
+
+        // Unique institutions & skills
+        const institutions = new Set();
+        const skills = new Set();
+        allCVs.forEach(cv => {
+          (cv.education || []).forEach(ed => { if (ed.institution_name) institutions.add(ed.institution_name); });
+          (cv.skill_names || []).forEach(s => skills.add(s));
+        });
+        document.getElementById('statInstitutions').textContent = institutions.size;
+        document.getElementById('statSkills').textContent = skills.size;
+
+        // Populate filters
+        const skillSelect = document.getElementById('filterSkill');
+        skillSelect.innerHTML = '<option value="">All Skills</option>';
+        skills.forEach(s => {
+          const opt = document.createElement('option');
+          opt.value = s; opt.textContent = s;
+          skillSelect.appendChild(opt);
+        });
+
+        const instSelect = document.getElementById('filterInstitution');
+        instSelect.innerHTML = '<option value="">All Institutions</option>';
+        institutions.forEach(i => {
+          const opt = document.createElement('option');
+          opt.value = i; opt.textContent = i;
+          instSelect.appendChild(opt);
+        });
+
+        // Browse table
+        populateBrowseTable(allCVs);
+
+        // Scanned table
+        populateScannedTable(scannedCVs);
+      } catch (err) {
+        console.error('Error loading dashboard:', err);
+        
+        if (err.message && err.message.includes('pending approval')) {
+          // Show a centered modal-like notification
+          const notification = document.createElement('div');
+          notification.innerHTML = `
+            <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 9999;">
+              <div style="background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); text-align: center; max-width: 400px; margin: 20px;">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">⏳</div>
+                <h3 style="color: #f59e0b; margin-bottom: 1rem;">Account Pending Approval</h3>
+                <p style="color: #666; margin-bottom: 1.5rem;">Your account is pending approval, you can't be able to see the approved CVs until your account is approved. Please wait for admin approval before accessing the system.</p>
+                <button onclick="this.parentElement.parentElement.remove()" style="background: #3b82f6; color: white; border: none; padding: 0.75rem 2rem; border-radius: 4px; cursor: pointer;">I Understand</button>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(notification);
+        } else {
+          showToast('Failed to load data. Make sure PHP server is running.', 'error');
+        }
+      }
+    }
+
+    function populateBrowseTable(cvs) {
+      const tbody = document.getElementById('browseTableBody');
+      if (cvs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center text-muted" style="padding:2rem;">No CVs match your criteria</td></tr>';
+        return;
+      }
+      tbody.innerHTML = cvs.map(cv => `
+        <tr>
+          <td><strong>${cv.student_name || 'Unknown'}</strong></td>
+          <td>${cv.title}</td>
+          <td><div class="cv-skills-list" style="font-size:0.72rem;">${(cv.skill_names || []).slice(0, 4).map(s => `<span class="cv-skill-tag">${s}</span>`).join('')}${cv.skill_names && cv.skill_names.length > 4 ? `<span class="text-muted">+${cv.skill_names.length - 4}</span>` : ''}</div></td>
+          <td>${(cv.education || []).map(ed => ed.degree).join(', ') || 'N/A'}</td>
+          <td>
+            <div class="d-flex gap-1">
+              <button class="btn btn-primary btn-sm" onclick="viewCV('${cv.cv_id}')">&#128065; View</button>
+              <button class="btn btn-outline btn-sm" onclick="downloadCV('${cv.cv_id}')">&#11015; PDF</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function populateScannedTable(scanned) {
+      const tbody = document.getElementById('scannedTableBody');
+      if (scanned.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted" style="padding:2rem;">No CVs viewed yet</td></tr>';
+        return;
+      }
+      tbody.innerHTML = scanned.map(s => {
+        const cv = allCVs.find(c => c.cv_id === s.cvId);
+        if (!cv) return '';
+        return `
+          <tr>
+            <td><strong>${cv.student_name || 'Unknown'}</strong></td>
+            <td>${cv.title}</td>
+            <td>${formatDate(s.viewedAt)}</td>
+            <td><button class="btn btn-outline btn-sm" onclick="viewCV('${cv.cv_id}')">&#128065; View Again</button></td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function viewCV(cvId) {
+      // Record scan
+      if (!scannedCVs.find(s => s.cvId === cvId)) {
+        scannedCVs.push({ cvId, viewedAt: new Date().toISOString() });
+        localStorage.setItem('dcv_scanned_' + user.email, JSON.stringify(scannedCVs));
+        document.getElementById('statScanned').textContent = scannedCVs.length;
+        populateScannedTable(scannedCVs);
+      }
+      window.open('public-cv.html?id=' + cvId, '_blank');
+    }
+
+    function downloadCV(cvId) {
+      alert('PDF download will be available when the backend is implemented. CV ID: ' + cvId);
+    }
+
+    async function accessCVByCode() {
+      const input = document.getElementById('qrCodeInput').value.trim();
+      if (!input) { alert('Please enter a CV code or link.'); return; }
+
+      // Check if it's a URL with token
+      if (input.includes('token=')) {
+        const params = new URLSearchParams(input.split('?')[1]);
+        const token = params.get('token');
+        if (token) {
+          try {
+            const data = await apiCall('/qr.php?action=verify&token=' + token);
+            if (data.qr && data.qr.cv_id) {
+              viewCV(data.qr.cv_id);
+              return;
+            }
+          } catch (err) {
+            console.error('Error verifying QR:', err);
+          }
+        }
+      }
+
+      // Fallback to CV ID
+      let cvId = input;
+      if (input.includes('id=')) {
+        const params = new URLSearchParams(input.split('?')[1]);
+        cvId = params.get('id') || input;
+      }
+
+      const cv = allCVs.find(c => c.cv_id == cvId && c.status === 'approved');
+      if (cv) {
+        viewCV(cv.cv_id);
+      } else {
+        alert('CV not found or not approved. Please check the code and try again.');
+      }
+    }
+
+    function searchCVs() {
+      const query = (document.getElementById('globalSearch').value || '').toLowerCase();
+      const skillFilter = document.getElementById('filterSkill').value;
+      const instFilter = document.getElementById('filterInstitution').value;
+
+      let cvs = allCVs.filter(cv => cv.status === 'approved');
+
+      if (query) {
+        cvs = cvs.filter(cv => {
+          const text = [
+            cv.student_name, cv.title, cv.personal_summary,
+            ...(cv.skill_names || []),
+            ...(cv.education || []).map(e => e.degree + ' ' + e.institution_name)
+          ].join(' ').toLowerCase();
+          return text.includes(query);
+        });
+      }
+
+      if (skillFilter) {
+        cvs = cvs.filter(cv => (cv.skill_names || []).includes(skillFilter));
+      }
+
+      if (instFilter) {
+        cvs = cvs.filter(cv => (cv.education || []).some(ed => ed.institution_name === instFilter));
+      }
+
+      populateBrowseTable(cvs);
+    }
+
+    function advancedSearch() {
+      const keyword = document.getElementById('advKeyword').value.toLowerCase();
+      const skill = document.getElementById('advSkill').value.toLowerCase();
+      const institution = document.getElementById('advInstitution').value.toLowerCase();
+      const qualification = document.getElementById('advQualification').value.toLowerCase();
+
+      let cvs = allCVs.filter(cv => cv.status === 'approved');
+
+      if (keyword) {
+        cvs = cvs.filter(cv => JSON.stringify(cv).toLowerCase().includes(keyword));
+      }
+      if (skill) {
+        cvs = cvs.filter(cv => (cv.skill_names || []).some(s => s.toLowerCase().includes(skill)));
+      }
+      if (institution) {
+        cvs = cvs.filter(cv => (cv.education || []).some(ed => ed.institution_name && ed.institution_name.toLowerCase().includes(institution)));
+      }
+      if (qualification) {
+        cvs = cvs.filter(cv => (cv.education || []).some(ed => ed.degree && ed.degree.toLowerCase().includes(qualification)));
+      }
+
+      populateBrowseTable(cvs);
+      closeModal('searchModal');
+    }
+  </script>
+</body>
+</html>
